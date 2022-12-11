@@ -39,4 +39,5 @@ class Role : public QGraphicsItem {
     const QColor YELLOW = QColor(208,181,117);
     QColor color;
 };
+
 #endif // ROLE_H

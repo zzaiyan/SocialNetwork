@@ -13,12 +13,16 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     mycanvas.cpp \
+    rel.cpp \
     role.cpp
 
 HEADERS += \
     graphview.h \
     mainwindow.h \
     mycanvas.h \
+    net.h \
+    node.h \
+    rel.h \
     role.h
 
 FORMS += \

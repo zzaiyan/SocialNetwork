@@ -3,6 +3,7 @@
 Role::Role(QString imgPath):imgPath(imgPath),color(BLUE),radius(30) {
     // 可选择、可移动
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
+    setFlag(ItemSendsGeometryChanges);	//打开通知
     setCacheMode(DeviceCoordinateCache);
     nameText = QString::asprintf("Role");
     nameTag = new QGraphicsTextItem;
@@ -93,4 +94,25 @@ void Role::setName(QString name) {
 void Role::setImgPath(QString path) {
     imgPath = path;
     update();
+}
+void Role::addRel(Rel *rel) {
+    relList << rel;
+    rel->adjust();
+}
+QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
+    switch (change) {
+    case ItemPositionHasChanged:
+        foreach (Rel *rel, relList)
+            rel->adjust();
+        break;
+    default:
+        break;
+    };
+    return QGraphicsItem::itemChange(change, value);
+}
+
+Role::~Role() {
+    foreach (Rel *rel, relList)
+        scene()->removeItem(rel);
+    qDebug()<<"~role";
 }

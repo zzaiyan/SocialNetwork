@@ -15,7 +15,6 @@ class GraphView : public QGraphicsView {
   public:
     explicit GraphView(QWidget *parent = nullptr);
   public slots:
-//    void shuffle();
   protected:
     bool sign;
     bool m_bMouseTranslate = false;

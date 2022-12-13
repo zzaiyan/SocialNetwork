@@ -21,11 +21,11 @@ template <class VerData, class ArcData> class ALNet {
 public:
   struct ArcNode;
   struct VerNode { // 顶点
-    int _id;
+    int _pos;
     VerData _data;
     QList<ArcNode> _Adj, _rAdj;
-    VerNode(int i = -1) : _id(i) {}
-    VerNode(int i, const VerData &e) : _id(i), _data(e) {}
+    VerNode(int i = -1) : _pos(i) {}
+    VerNode(int i, const VerData &e) : _pos(i), _data(e) {}
   };
   struct ArcNode { // 有向边
     VerNode *from = nullptr;
@@ -37,10 +37,10 @@ private:
   QVector<VerNode *> vers; // 顶点数组
 
   int fromNum(const ArcNode &a) {
-    return a.from->_id; // 获取起点下标
+    return a.from->_pos; // 获取起点下标
   }
   int toNum(const ArcNode &a) {
-    return a.to->_id; // 获取终点下标
+    return a.to->_pos; // 获取终点下标
   }
 
 public:
@@ -62,16 +62,25 @@ public:
   ArcNode *getArc(int a, int b) {
     ArcNode *arc = nullptr;
     for (auto it = Adj(a).begin(); it != Adj(a).end(); it++)
-      if (it->to->id == b) {
+      if (it->to->_pos == b) {
         arc = &(*it);
         break;
       }
     return arc;
   }
+  ArcNode *getArc(VerNode *a, VerNode *b) {
+    if (a && b)
+      return getArc(a->_pos, b->_pos);
+    return nullptr;
+  }
 
   int getVerNum() const { return vers.size(); }
+
   int inDegree(int id) const { return rAdj(id).size(); }
+  int inDegree(VerNode *ver) const { return inDegree(ver->_pos); }
+
   int outDegree(int id) const { return Adj(id).size(); }
+  int outDegree(VerNode *ver) const { return outDegree(ver->_pos); }
 
   // 尾插顶点并赋值
   VerNode *addVer(const VerData &e) {
@@ -88,14 +97,13 @@ public:
     return &Adj(a).back()._data;
   }
   ArcData *addArc(VerNode *a, VerNode *b, const ArcData &e) {
-    Adj(a->_id).push_back({a, b, e});
-    rAdj(b->_id).push_back({b, a, e});
-    return &Adj(a->_id).back()._data;
+    Adj(a->_pos).push_back({a, b, e});
+    rAdj(b->_pos).push_back({b, a, e});
+    return &Adj(a->_pos).back()._data;
   }
-  // 加边
-  //  void addArc(int a, int b) { addArc(a, b, {}); }
   // 判断边
   bool haveArc(int a, int b) { return getArc(a, b) != nullptr; }
+  bool haveArc(VerNode *a, VerNode *b) { return haveArc(a->_pos, b->_pos); }
   // 改变顶点的数据
   bool setVer(int id, const VerData &e) {
     auto ver = getVer(id);
@@ -114,22 +122,28 @@ public:
     return true;
   }
 
-  void rmArc(int a, int b) {
+  bool rmArc(int a, int b) {
     //    ArcData ret;
     auto it1 = Adj(a).begin();
     auto it2 = rAdj(b).begin();
     for (; it1 != Adj(a).end(); it1++)
-      if (it1->to->_id == b) {
+      if (it1->to->_pos == b) {
         //        ret = it1->_data;
         break;
       }
     for (; it2 != rAdj(b).end(); it2++)
-      if (it2->to->_id == a)
+      if (it2->to->_pos == a)
         break;
     //    ret = it1->_data;
     Adj(a).erase(it1);
     rAdj(b).erase(it2);
-    //    return ret;
+    return true;
+  }
+  bool rmArc(VerNode *a, VerNode *b) {
+    auto arc = getArc(a, b);
+    if (arc == nullptr)
+      return false;
+    return rmArc(a->_pos, b->_pos);
   }
 
   void rmVer(int id) {
@@ -153,11 +167,15 @@ public:
     //    auto ret = vers[id]->_data;
     delete vers[id];
     for (int i = id + 1; i < vers.size(); i++) {
-      vers[i]->_id--;
+      vers[i]->_pos--;
       vers[i - 1] = vers[i];
     }
     vers.pop_back();
     //    return ret;
+  }
+  void rmVer(VerNode *ver) {
+    if (ver)
+      rmVer(ver->_pos);
   }
 
   void printVers() {

@@ -3,19 +3,23 @@
 
 #include "node.h"
 #include "role.h"
+#include <QFont>
 #include <QGraphicsItem>
 
 struct RelData;
 class Role;
 class Rel : public QGraphicsItem {
 public:
+  enum { Type = UserType + 11 };
+  int type() const override { return Type; }
+  bool isRemoved = 0;
   Rel(Role *startRole, Role *endRole);
-  Rel(Role *startRole, Role *endRole, QColor c, QString text = "");
-  void setColor(int c);
+  Rel(Role *startRole, Role *endRole, int c, QString text = "");
   void adjust();
-
-  RelData *data;
-  void setData(RelData *p) { data = p; }
+  void setColor(int c);
+  void removeThis();
+  //  RelData *data;
+  //  void setData(RelData *p) { data = p; }
 
 protected:
   QRectF boundingRect() const override;
@@ -23,11 +27,16 @@ protected:
              QWidget *widget) override;
 
 private:
+  /* For display temporary tag */
   QString text;
+  QGraphicsTextItem *relTag = nullptr;
+  QFont tagFont = QFont("微软雅黑", 12, QFont::Normal);
+  /* basic data */
   Role *start, *end;
   qreal arrowSize;
   QPointF startPoint;
   QPointF endPoint;
+  QPointF center;
   /* color */
   const QColor BLUE = QColor(115, 165, 210);
   const QColor RED = QColor(216, 135, 133);

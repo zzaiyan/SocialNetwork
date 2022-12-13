@@ -16,8 +16,9 @@ struct RoleData;
 class Rel;
 class Role : public QGraphicsItem {
 public:
+  enum { Type = UserType + 77 };
+  int type() const override { return Type; }
   Role(QString imgPath = "");
-  ~Role();
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget) override;
@@ -25,9 +26,10 @@ public:
   void setName(QString name);
   void setImgPath(QString path);
   void addRel(Rel *rel);
+  void removeThis();
 
-  RoleData *data = nullptr;
-  void setData(RoleData *p) { data = p; }
+  //  RoleData *data = nullptr;
+  //  void setData(RoleData *p) { data = p; }
 
   QString imgPath;
   QString nameText = "";
@@ -39,6 +41,7 @@ protected:
   QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
+  /* basic data */
   qreal radius;
   QList<Rel *> relList;
   /* For display temporary tag */

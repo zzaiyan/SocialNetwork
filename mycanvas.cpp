@@ -2,6 +2,9 @@
 #include "ui_mycanvas.h"
 #include <QDebug>
 
+#define ID_FILE "D:\\QTproject\\SocialNetworkAnalist-master\\data\\id0.csv"
+#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist-master\\data\\data0.csv"
+
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);
 
@@ -12,8 +15,6 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   scene = new QGraphicsScene;
   view = new GraphView;
   view->setScene(scene);
-  view->setRenderHints(QPainter::Antialiasing |
-                       QPainter::SmoothPixmapTransform); //图像平滑和抗锯齿
   view->setMinimumWidth(400);
   ui->horizontalLayout_6->addWidget(view);
   ui->imgLabel->setScaledContents(true);
@@ -50,21 +51,19 @@ void MyCanvas::repaint() {
 }
 
 void MyCanvas::on_addRole_clicked() {
-  Role *role1 = new Role(), *role2 = new Role();
+  Role *role1 = new Role();
   QSize viewSize = view->size();
-  role1->setPos(-50, 0);
-  role2->setPos(50, 0);
+  // 每次添加人物的位置都保证在视图的中心点处
+  role1->setPos(view->mapToScene(viewSize.width() / 2, viewSize.height() / 2));
   scene->addItem(role1);
-  scene->addItem(role2);
-  scene->addItem(new Rel(role1, role2));
 }
 
 void MyCanvas::on_deleteRole_clicked() {
   if (selectedItem != nullptr) {
     //    selectedItem = nullptr;
-    auto ver = hashs[selectedItem->data->name];
-    net.rmVer(ver->_id);
-    scene->removeItem(selectedItem);
+    auto ver = hashName[selectedItem->nameText];
+    selectedItem->removeThis();
+    net.rmVer(ver);
   }
 }
 
@@ -94,14 +93,19 @@ void MyCanvas::on_yellowBtn_clicked() {
 
 void MyCanvas::on_nameEdit_editingFinished() {
   if (selectedItem != nullptr) {
-    selectedItem->setName(ui->nameEdit->text());
+    auto oldName = selectedItem->nameText;
+    auto newName = ui->nameEdit->text();
+    auto ver = hashName[oldName];
+    hashName.remove(oldName);
+    hashName.insert(newName, ver);
+    selectedItem->setName(newName);
   }
 }
 
 void MyCanvas::on_openFile_clicked() {
   QImage image;
   QString OpenFile;
-  //打开文件夹中的图片文件
+  // 打开文件夹中的图片文件
   OpenFile = QFileDialog::getOpenFileName(
       this, "Please choose an image file", "",
       "Image Files(*.jpg *.png *.bmp *.pgm *.pbm);;All(*.*)");
@@ -115,19 +119,16 @@ void MyCanvas::on_openFile_clicked() {
 
 void MyCanvas::on_exportImg_clicked() {
   QSize mysize(scene->width() * 2,
-               scene->height() * 2); //获取 QGraphicsScene.size
-  QImage image(mysize, QImage::Format_ARGB32_Premultiplied); //保存透明度
+               scene->height() * 2); // 获取 QGraphicsScene.size
+  QImage image(mysize, QImage::Format_ARGB32_Premultiplied); // 保存透明度
   QPainter painter(&image);
   painter.setRenderHint(QPainter::HighQualityAntialiasing);
-  scene->render(&painter); //关键函数
+  scene->render(&painter); // 关键函数
   image.save("D:\\SaveGraphicsScene.png");
 }
 
-#define ID_FILE "/home/z/Desktop/RedMansion/data/id0.csv"
-#define REL_FILE "/home/z/Desktop/RedMansion/data/data0.csv"
-
 void MyCanvas::readFile() {
-  hashs.clear();
+  hashName.clear();
   //  names.clear();
   std::ifstream ifs;
 
@@ -146,18 +147,20 @@ void MyCanvas::readFile() {
 
     qDebug() << QString("%1 -> %2").arg(name).arg(ID);
 
-    //建立Role
+    // 建立Role
     auto roleItem = new Role();
     roleItem->setName(name);
 
     scene->addItem(roleItem);
-    //建立顶点，绑定Role
+
+    // 建立顶点，绑定Role
     auto ver = net.addVer({ID, name});
 
-    ver->_data.setRole(roleItem);
-    roleItem->setData(&ver->_data);
-    //哈希表记录
-    hashs.insert(name, ver);
+    ver->_data.setItem(roleItem);
+
+    // 哈希表记录
+    hashName.insert(name, ver);
+    hashID.insert(ID, ver);
   }
   ifs.close();
 
@@ -170,24 +173,33 @@ void MyCanvas::readFile() {
     auto qBuf = QString::fromLocal8Bit(lineBuf.data());
     auto li = qBuf.split(',');
     auto it = li.begin();
-    auto pa = hashs[*it++];
-    auto pb = hashs[*it++];
+    auto pa = hashName[*it++];
+    auto pb = hashName[*it++];
     qBuf = *it;
 
-    qDebug() << QString("<%1, %2> = %3").arg(pa->_id).arg(pb->_id).arg(qBuf);
+    qDebug() << QString("<%1, %2> = %3")
+                    .arg(pa->_data.name)
+                    .arg(pb->_data.name)
+                    .arg(qBuf);
 
     // 初始化标签，new Rel对象
-    auto label = QString("<%1,%2>").arg(pa->_id).arg(pb->_id);
-    auto relItem = new Rel(pa->_data.role, pb->_data.role);
+    auto relItem = new Rel(pa->_data.item, pb->_data.item, 1, qBuf);
 
     scene->addItem(relItem);
 
     // 在net中生成边，同时绑定relItem
-    auto relData = net.addArc(pa, pb, {label});
-    relData->setRel(relItem);
-    // Item绑定Data
-    relItem->setData(relData);
+    auto relData = net.addArc(pa, pb, {qBuf});
+    //    relData->setRel(relItem);
+    //  Item绑定Data
+    //    relItem->setData(relData);
   }
 
   ifs.close();
+}
+
+RelData *MyCanvas::getRelData(const QString &name1, const QString &name2) {
+  auto ver1 = hashName[name1];
+  auto ver2 = hashName[name2];
+  auto relNode = net.getArc(ver1, ver2);
+  return &relNode->_data;
 }

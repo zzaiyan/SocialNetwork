@@ -51,6 +51,9 @@ private slots:
 
   void on_exportImg_clicked();
 
+private: // from Zzaiyan
+  RelData *getRelData(const QString &name1, const QString &name2);
+
 private:
   Ui::MyCanvas *ui;
   QGraphicsScene *scene;
@@ -58,7 +61,8 @@ private:
   Role *selectedItem;
 
   ALNet<RoleData, RelData> net; // 有向网
-  QHash<QString, ALNet<RoleData, RelData>::VerNode *> hashs;
+  QHash<QString, ALNet<RoleData, RelData>::VerNode *> hashName;
+  QHash<int, ALNet<RoleData, RelData>::VerNode *> hashID;
 
   void readFile();
 };

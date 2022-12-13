@@ -2,8 +2,8 @@
 #include "ui_mycanvas.h"
 #include <QDebug>
 
-#define ID_FILE "D:\\QTproject\\SocialNetworkAnalist-master\\data\\id0.csv"
-#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist-master\\data\\data0.csv"
+#define ID_FILE "C:\\Users\\1\\Desktop\\id0.csv"
+#define REL_FILE "C:\\Users\\1\\Desktop\\data0.csv"
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);

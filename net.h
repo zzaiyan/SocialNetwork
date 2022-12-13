@@ -23,7 +23,7 @@ public:
   struct VerNode { // 顶点
     int _pos;
     VerData _data;
-    QList<ArcNode> _Adj, _rAdj;
+    QList<ArcNode> _Adj, _rAdj; // 出度表 + 入度表
     VerNode(int i = -1) : _pos(i) {}
     VerNode(int i, const VerData &e) : _pos(i), _data(e) {}
   };

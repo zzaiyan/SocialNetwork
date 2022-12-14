@@ -22,6 +22,8 @@ namespace Ui {
 class MyCanvas;
 }
 
+class GraphView;
+
 class MyCanvas : public QWidget {
   Q_OBJECT
 
@@ -51,14 +53,20 @@ private slots:
 
   void on_exportImg_clicked();
 
-private: // from Zzaiyan
+  void on_debugButton_clicked();
+
+public: // from Zzaiyan
   RelData *getRelData(const QString &name1, const QString &name2);
+  RelData *addNetArc(const QString &name1, const QString &name2,
+                     const QString &label);
 
 private:
   Ui::MyCanvas *ui;
   QGraphicsScene *scene;
   GraphView *view;
-  Role *selectedItem;
+  Role *selectedItem = nullptr;
+
+  int roleCnt = 0;
 
   ALNet<RoleData, RelData> net; // 有向网
   QHash<QString, ALNet<RoleData, RelData>::VerNode *> hashName;

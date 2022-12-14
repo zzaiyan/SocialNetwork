@@ -71,6 +71,7 @@ public:
   ArcNode *getArc(VerNode *a, VerNode *b) {
     if (a && b)
       return getArc(a->_pos, b->_pos);
+    qDebug() << "Arc Get ERROR!";
     return nullptr;
   }
 
@@ -97,9 +98,10 @@ public:
     return &Adj(a).back()._data;
   }
   ArcData *addArc(VerNode *a, VerNode *b, const ArcData &e) {
-    Adj(a->_pos).push_back({a, b, e});
-    rAdj(b->_pos).push_back({b, a, e});
-    return &Adj(a->_pos).back()._data;
+    if (a && b)
+      return addArc(a->_pos, b->_pos, e);
+    qDebug() << "Arc Add ERROR!";
+    return nullptr;
   }
   // 判断边
   bool haveArc(int a, int b) { return getArc(a, b) != nullptr; }
@@ -134,7 +136,9 @@ public:
     for (; it2 != rAdj(b).end(); it2++)
       if (it2->to->_pos == a)
         break;
-    //    ret = it1->_data;
+    //    qDebug() << QString("delete <%1,%2>.")
+    //                    .arg(vers[a]->_data.name)
+    //                    .arg(vers[b]->_data.name);
     Adj(a).erase(it1);
     rAdj(b).erase(it2);
     return true;
@@ -147,6 +151,7 @@ public:
   }
 
   void rmVer(int id) {
+    // 首先删除以该点为终点的边
     for (int i = 0; i < vers.size(); i++) {
       if (i == id)
         continue;
@@ -158,13 +163,10 @@ public:
       }
       while (que.size()) {
         rmArc(que.front().first, que.front().second);
-        qDebug() << QString("delete <%1,%2>.")
-                        .arg(que.front().first)
-                        .arg(que.front().second);
         que.pop();
       }
     }
-    //    auto ret = vers[id]->_data;
+    // 然后删除顶点以及邻接表（发出的边）
     delete vers[id];
     for (int i = id + 1; i < vers.size(); i++) {
       vers[i]->_pos--;
@@ -176,6 +178,8 @@ public:
   void rmVer(VerNode *ver) {
     if (ver)
       rmVer(ver->_pos);
+    else
+      qDebug() << "Remove Ver ERROR!";
   }
 
   void printVers() {

@@ -20,6 +20,7 @@ public:
   void removeThis();
   //  RelData *data;
   //  void setData(RelData *p) { data = p; }
+  void setText(QString t) { text = t; }
 
 protected:
   QRectF boundingRect() const override;

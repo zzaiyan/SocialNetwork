@@ -1,15 +1,19 @@
 #include "role.h"
 
-Role::Role(QString imgPath) : imgPath(imgPath), color(BLUE), radius(30) {
+Role::Role(int id, QString tname, QString imgPath)
+    : ID(id), imgPath(imgPath), color(BLUE), radius(30) {
   // 可选择、可移动
   setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
-  setFlag(ItemSendsGeometryChanges);   //打开通知
-  setCacheMode(DeviceCoordinateCache); //加快渲染性能
-  nameText = QString::asprintf("Role");
+  setFlag(ItemSendsGeometryChanges);   // 打开通知
+  setCacheMode(DeviceCoordinateCache); // 加快渲染性能
+  if (tname == "")
+    name = "Role-" + QString::number(id);
+  else
+    name = tname;
   nameTag = new QGraphicsTextItem;
   nameTag->setParentItem(this);
   nameTag->setFont(nameFont);
-  nameTag->setPlainText(nameText);
+  nameTag->setPlainText(name);
   nameTag->adjustSize();
   nameTag->setPos(-nameTag->textWidth() / 2, radius);
   nameTag->setZValue(this->zValue());
@@ -27,17 +31,17 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   QPen pen(Qt::NoPen);
   QBrush brush;
   brush.setStyle(Qt::SolidPattern);
-  if (option->state & QStyle::State_Sunken) { //设置按下时的颜色
+  if (option->state & QStyle::State_Sunken) { // 设置按下时的颜色
     brush.setColor(color.darker(130));
-  } else if (option->state & QStyle::State_Selected) { //设置选中时的颜色
+  } else if (option->state & QStyle::State_Selected) { // 设置选中时的颜色
     brush.setColor(color.darker(120));
-  } else { //设置松开时的颜色
+  } else { // 设置松开时的颜色
     brush.setColor(color);
   }
   painter->setPen(pen);
   painter->setBrush(brush);
   painter->drawEllipse(QPointF(0, 0), radius, radius);
-  //根据缩放级别调整绘制细节，只有缩放级别较大时才绘制图标和图片
+  // 根据缩放级别调整绘制细节，只有缩放级别较大时才绘制图标和图片
   const qreal lod =
       option->levelOfDetailFromTransform(painter->worldTransform());
   if (lod > 0.3) {
@@ -67,7 +71,7 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 }
 
 void Role::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-  if (event->buttons() & Qt::LeftButton) { //若按下左键
+  if (event->buttons() & Qt::LeftButton) { // 若按下左键
     QGraphicsItem::mousePressEvent(event);
   }
   update();
@@ -96,9 +100,9 @@ void Role::setColor(int c) {
   }
   update();
 }
-void Role::setName(QString name) {
-  nameText = name;
-  nameTag->setPlainText(nameText);
+void Role::setName(QString tname) {
+  name = tname;
+  nameTag->setPlainText(tname);
   nameTag->adjustSize();
   nameTag->setPos(-nameTag->textWidth() / 2, radius);
 }
@@ -123,6 +127,8 @@ QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
 }
 
 void Role::removeThis() {
-  foreach (Rel *rel, relList) { rel->removeThis(); }
+  foreach (Rel *rel, relList) {
+    rel->removeThis();
+  }
   scene()->removeItem(this);
 }

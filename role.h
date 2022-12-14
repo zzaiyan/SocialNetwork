@@ -1,7 +1,6 @@
 #ifndef ROLE_H
 #define ROLE_H
 
-#include "node.h"
 #include "rel.h"
 #include <QApplication>
 #include <QDebug>
@@ -12,18 +11,17 @@
 #include <QRectF>
 #include <QtSvg>
 
-struct RoleData;
 class Rel;
 class Role : public QGraphicsItem {
 public:
   enum { Type = UserType + 77 };
   int type() const override { return Type; }
-  Role(QString imgPath = "");
+  Role(int id, QString tname = "", QString imgPath = "");
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget) override;
   void setColor(int c);
-  void setName(QString name);
+  void setName(QString tname);
   void setImgPath(QString path);
   void addRel(Rel *rel);
   void removeThis();
@@ -31,8 +29,9 @@ public:
   //  RoleData *data = nullptr;
   //  void setData(RoleData *p) { data = p; }
 
+  int ID;
   QString imgPath;
-  QString nameText = "";
+  QString name;
 
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *event) override;

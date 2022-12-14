@@ -13,7 +13,9 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->deleteRole->setIconSize(QSize(20, 20));
   ui->deleteRole->setIcon(QIcon(":/icon/delete.svg"));
   scene = new QGraphicsScene;
-  view = new GraphView;
+
+  view = new GraphView(this); // 绑定this与view
+
   view->setScene(scene);
   view->setMinimumWidth(400);
   ui->horizontalLayout_6->addWidget(view);
@@ -30,7 +32,7 @@ MyCanvas::~MyCanvas() { delete ui; }
 void MyCanvas::repaint() {
   if (!scene->selectedItems().isEmpty()) {
     selectedItem = dynamic_cast<Role *>(scene->selectedItems().front());
-    QString imgPath = selectedItem->imgPath, name = selectedItem->nameText;
+    QString imgPath = selectedItem->imgPath, name = selectedItem->name;
     QPixmap p(imgPath.isEmpty() ? ":/icon/role.svg" : imgPath);
     ui->imgLabel->setPixmap(p);
     ui->nameEdit->setText(name);
@@ -51,17 +53,28 @@ void MyCanvas::repaint() {
 }
 
 void MyCanvas::on_addRole_clicked() {
-  Role *role1 = new Role();
-  QSize viewSize = view->size();
+  // 新建roleItem，分配ID
+  auto *newRole = new Role(roleCnt++);
+
+  auto viewSize = view->size();
   // 每次添加人物的位置都保证在视图的中心点处
-  role1->setPos(view->mapToScene(viewSize.width() / 2, viewSize.height() / 2));
-  scene->addItem(role1);
+  newRole->setPos(
+      view->mapToScene(viewSize.width() / 2, viewSize.height() / 2));
+
+  // net中添加结点
+  auto ver = net.addVer({newRole->ID, newRole->name});
+  // 哈希表记录
+  hashID.insert(newRole->ID, ver);
+  hashName.insert(newRole->name, ver);
+  // 加入场景
+  scene->addItem(newRole);
 }
 
 void MyCanvas::on_deleteRole_clicked() {
   if (selectedItem != nullptr) {
     //    selectedItem = nullptr;
-    auto ver = hashName[selectedItem->nameText];
+    qDebug() << "remove:" << selectedItem->ID << selectedItem->name;
+    auto ver = hashID[selectedItem->ID];
     selectedItem->removeThis();
     net.rmVer(ver);
   }
@@ -93,11 +106,16 @@ void MyCanvas::on_yellowBtn_clicked() {
 
 void MyCanvas::on_nameEdit_editingFinished() {
   if (selectedItem != nullptr) {
-    auto oldName = selectedItem->nameText;
+    auto oldName = selectedItem->name;
     auto newName = ui->nameEdit->text();
+    // 获取顶点
     auto ver = hashName[oldName];
+    // 更新RoleData
+    ver->_data.name = newName;
+    // 更新哈希表
     hashName.remove(oldName);
     hashName.insert(newName, ver);
+    // 更新Item
     selectedItem->setName(newName);
   }
 }
@@ -143,24 +161,24 @@ void MyCanvas::readFile() {
     auto li = qBuf.split(',');
     auto it = li.begin();
     auto name = *it++;
-    auto ID = it->toInt();
-
-    qDebug() << QString("%1 -> %2").arg(name).arg(ID);
+    //    auto ID = it->toInt();
 
     // 建立Role
-    auto roleItem = new Role();
-    roleItem->setName(name);
+    auto roleItem = new Role(roleCnt++, name);
+    //    roleItem->setName(name);
 
     scene->addItem(roleItem);
 
     // 建立顶点，绑定Role
-    auto ver = net.addVer({ID, name});
+    auto ver = net.addVer({roleItem->ID, roleItem->name});
+
+    qDebug() << QString("%1 -> %2").arg(roleItem->name).arg(roleItem->ID);
 
     ver->_data.setItem(roleItem);
 
     // 哈希表记录
-    hashName.insert(name, ver);
-    hashID.insert(ID, ver);
+    hashName.insert(roleItem->name, ver);
+    hashID.insert(roleItem->ID, ver);
   }
   ifs.close();
 
@@ -176,25 +194,21 @@ void MyCanvas::readFile() {
     auto pa = hashName[*it++];
     auto pb = hashName[*it++];
     qBuf = *it;
-
     qDebug() << QString("<%1, %2> = %3")
                     .arg(pa->_data.name)
                     .arg(pb->_data.name)
                     .arg(qBuf);
-
     // 初始化标签，new Rel对象
     auto relItem = new Rel(pa->_data.item, pb->_data.item, 1, qBuf);
 
     scene->addItem(relItem);
-
-    // 在net中生成边，同时绑定relItem
-    auto relData = net.addArc(pa, pb, {qBuf});
-    //    relData->setRel(relItem);
-    //  Item绑定Data
-    //    relItem->setData(relData);
+    // 在net中生成边
+    net.addArc(pa, pb, {qBuf});
   }
 
   ifs.close();
+
+  qDebug() << "文件读取完成!";
 }
 
 RelData *MyCanvas::getRelData(const QString &name1, const QString &name2) {
@@ -202,4 +216,17 @@ RelData *MyCanvas::getRelData(const QString &name1, const QString &name2) {
   auto ver2 = hashName[name2];
   auto relNode = net.getArc(ver1, ver2);
   return &relNode->_data;
+}
+
+RelData *MyCanvas::addNetArc(const QString &name1, const QString &name2,
+                             const QString &label) {
+  auto ver1 = hashName[name1];
+  auto ver2 = hashName[name2];
+  auto relData = net.addArc(ver1, ver2, {label});
+  return relData;
+}
+
+void MyCanvas::on_debugButton_clicked() {
+  net.printVers();
+  net.printTable();
 }

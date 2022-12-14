@@ -1,26 +1,27 @@
 #include "graphview.h"
 
-GraphView::GraphView(QWidget *parent) : QGraphicsView(parent) {
+GraphView::GraphView(MyCanvas *p, QWidget *parent)
+    : QGraphicsView(parent), canvas(p) {
   this->setBackgroundBrush(Qt::transparent);
   this->setRenderHints(QPainter::Antialiasing |
-                       QPainter::SmoothPixmapTransform); //图像平滑和抗锯齿
+                       QPainter::SmoothPixmapTransform); // 图像平滑和抗锯齿
   this->setCacheMode(
-      QGraphicsView::CacheBackground); //设置缓存模式，加速渲染背景图。
+      QGraphicsView::CacheBackground); // 设置缓存模式，加速渲染背景图。
   this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-  setMouseTracking(true);                               //跟踪鼠标位置
-  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); //隐藏水平条
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);   //隐藏竖条
+  setMouseTracking(true);                               // 跟踪鼠标位置
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // 隐藏水平条
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);   // 隐藏竖条
   this->setDragMode(ScrollHandDrag);
   line = nullptr;
 }
 
 void GraphView::wheelEvent(QWheelEvent *event) {
   int wheelDeltaValue = event->delta();
-  // 向上滚动，放大;
+  // 向上滚动，放大
   if (wheelDeltaValue > 0) {
     this->scale(1.2, 1.2);
   }
-  // 向下滚动，缩小;
+  // 向下滚动，缩小
   else {
     this->scale(1.0 / 1.2, 1.0 / 1.2);
   }
@@ -64,8 +65,12 @@ void GraphView::mouseReleaseEvent(QMouseEvent *mouseEvent) {
       Role *startItem = qgraphicsitem_cast<Role *>(startItems.first());
       Role *endItem = qgraphicsitem_cast<Role *>(endItems.first());
       Rel *rel = new Rel(startItem, endItem);
-      qDebug() << startItem->nameText;
-      qDebug() << endItem->nameText;
+
+      rel->setText("newRelation");
+
+      canvas->addNetArc(startItem->name, endItem->name, "newRelation");
+
+      qDebug() << startItem->name << endItem->name;
       startItem->addRel(rel);
       endItem->addRel(rel);
       scene()->addItem(rel);

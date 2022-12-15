@@ -75,6 +75,22 @@ public:
     return nullptr;
   }
 
+  ArcNode *getRArc(int a, int b) {
+    ArcNode *arc = nullptr;
+    for (auto it = rAdj(b).begin(); it != rAdj(b).end(); it++)
+      if (it->to->_pos == a) {
+        arc = &(*it);
+        break;
+      }
+    return arc;
+  }
+  ArcNode *getRArc(VerNode *a, VerNode *b) {
+    if (a && b)
+      return getRArc(a->_pos, b->_pos);
+    qDebug() << "rArc Get ERROR!";
+    return nullptr;
+  }
+
   int getVerNum() const { return vers.size(); }
 
   int inDegree(int id) const { return rAdj(id).size(); }

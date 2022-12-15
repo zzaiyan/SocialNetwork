@@ -127,8 +127,6 @@ QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
 }
 
 void Role::removeThis() {
-  foreach (Rel *rel, relList) {
-    rel->removeThis();
-  }
+  foreach (Rel *rel, relList) { rel->removeThis(); }
   scene()->removeItem(this);
 }

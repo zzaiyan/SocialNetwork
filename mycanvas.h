@@ -56,15 +56,18 @@ private slots:
   void on_debugButton_clicked();
 
 public: // from Zzaiyan
-  RelData *getRelData(const QString &name1, const QString &name2);
+  void setRelData(const int &ID1, const int &ID2, const RelData &e);
   RelData *addNetArc(const QString &name1, const QString &name2,
                      const QString &label);
+  void setColor(int c);
 
 private:
   Ui::MyCanvas *ui;
   QGraphicsScene *scene;
   GraphView *view;
-  Role *selectedItem = nullptr;
+  QGraphicsItem *selectedItem = nullptr;
+  Role *selectedRole;
+  Rel *selectedRel;
 
   int roleCnt = 0;
 

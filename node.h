@@ -24,6 +24,7 @@ public:
 
 struct RelData {
   QString label;
+  int color;
 
 public:
   RelData() = default;

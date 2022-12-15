@@ -13,6 +13,7 @@ public:
   enum { Type = UserType + 11 };
   int type() const override { return Type; }
   bool isRemoved = 0;
+  QString text;
   Rel(Role *startRole, Role *endRole);
   Rel(Role *startRole, Role *endRole, int c, QString text = "");
   void adjust();
@@ -21,6 +22,8 @@ public:
   //  RelData *data;
   //  void setData(RelData *p) { data = p; }
   void setText(QString t) { text = t; }
+  Role *startRole() { return start; }
+  Role *endRole() { return end; }
 
 protected:
   QRectF boundingRect() const override;
@@ -29,7 +32,6 @@ protected:
 
 private:
   /* For display temporary tag */
-  QString text;
   QGraphicsTextItem *relTag = nullptr;
   QFont tagFont = QFont("微软雅黑", 12, QFont::Normal);
   /* basic data */

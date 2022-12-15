@@ -2,8 +2,8 @@
 #include "ui_mycanvas.h"
 #include <QDebug>
 
-#define ID_FILE "C:\\Users\\1\\Desktop\\id0.csv"
-#define REL_FILE "C:\\Users\\1\\Desktop\\data0.csv"
+#define ID_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id0.csv"
+#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data0.csv"
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);
@@ -13,7 +13,6 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->deleteRole->setIconSize(QSize(20, 20));
   ui->deleteRole->setIcon(QIcon(":/icon/delete.svg"));
   scene = new QGraphicsScene;
-
   view = new GraphView(this); // 绑定this与view
 
   view->setScene(scene);
@@ -31,21 +30,45 @@ MyCanvas::~MyCanvas() { delete ui; }
 
 void MyCanvas::repaint() {
   if (!scene->selectedItems().isEmpty()) {
-    selectedItem = dynamic_cast<Role *>(scene->selectedItems().front());
-    QString imgPath = selectedItem->imgPath, name = selectedItem->name;
-    QPixmap p(imgPath.isEmpty() ? ":/icon/role.svg" : imgPath);
-    ui->imgLabel->setPixmap(p);
-    ui->nameEdit->setText(name);
-    ui->nameEdit->setReadOnly(false);
-    ui->infoEdit->setReadOnly(false);
-    ui->openFile->setEnabled(true);
-  } else {
-    selectedItem = nullptr;
+    selectedItem = scene->selectedItems().front();
+    if (selectedItem->type() == Role::Type) { //当前选中的是role
+      selectedRel = nullptr;
+      selectedRole = qgraphicsitem_cast<Role *>(selectedItem);
+      QString imgPath = selectedRole->imgPath, name = selectedRole->name;
+      QPixmap p(imgPath.isEmpty() ? ":/icon/role.svg" : imgPath);
+      ui->imgLabel->setPixmap(p);
+      ui->nameEdit->setText(name);
+      ui->idLabel->setText("ID:" + QString::number(selectedRole->ID));
+      ui->infoEdit->clear();
+      ui->infoEdit->appendPlainText("No description");
+      ui->nameEdit->setReadOnly(false);
+      ui->infoEdit->setReadOnly(false);
+      ui->openFile->setEnabled(true);
+    } else { //当前选中的是rel
+      selectedRole = nullptr;
+      selectedRel = qgraphicsitem_cast<Rel *>(selectedItem->parentItem());
+      QPixmap p(":/icon/relation.svg");
+      ui->imgLabel->setPixmap(p);
+      ui->nameEdit->setText(selectedRel->text);
+      ui->idLabel->setText("ID:00");
+      ui->infoEdit->clear();
+      QString buf;
+      buf =
+          selectedRel->startRole()->name + "->" + selectedRel->endRole()->name;
+      ui->infoEdit->appendPlainText(buf);
+      ui->nameEdit->setReadOnly(false);
+      ui->infoEdit->setReadOnly(true);
+      ui->openFile->setEnabled(false);
+    }
+  } else { //选中的是别的地方
+    selectedRole = nullptr;
+    selectedRel = nullptr;
     QPixmap p;
     ui->imgLabel->setPixmap(p);
     ui->nameEdit->setText("Null");
     ui->infoEdit->clear();
     ui->infoEdit->appendPlainText("No description");
+    ui->idLabel->setText("ID:00");
     ui->nameEdit->setReadOnly(true);
     ui->infoEdit->setReadOnly(true);
     ui->openFile->setEnabled(false);
@@ -71,42 +94,18 @@ void MyCanvas::on_addRole_clicked() {
 }
 
 void MyCanvas::on_deleteRole_clicked() {
-  if (selectedItem != nullptr) {
+  if (selectedRole != nullptr) {
     //    selectedItem = nullptr;
-    qDebug() << "remove:" << selectedItem->ID << selectedItem->name;
-    auto ver = hashID[selectedItem->ID];
-    selectedItem->removeThis();
+    qDebug() << "remove:" << selectedRole->ID << selectedRole->name;
+    auto ver = hashID[selectedRole->ID];
+    selectedRole->removeThis();
     net.rmVer(ver);
   }
 }
 
-void MyCanvas::on_blueBtn_clicked() {
-  if (selectedItem != nullptr) {
-    selectedItem->setColor(1);
-  }
-}
-
-void MyCanvas::on_redBtn_clicked() {
-  if (selectedItem != nullptr) {
-    selectedItem->setColor(2);
-  }
-}
-
-void MyCanvas::on_purpleBtn_clicked() {
-  if (selectedItem != nullptr) {
-    selectedItem->setColor(3);
-  }
-}
-
-void MyCanvas::on_yellowBtn_clicked() {
-  if (selectedItem != nullptr) {
-    selectedItem->setColor(4);
-  }
-}
-
 void MyCanvas::on_nameEdit_editingFinished() {
-  if (selectedItem != nullptr) {
-    auto oldName = selectedItem->name;
+  if (selectedRole != nullptr) {
+    auto oldName = selectedRole->name;
     auto newName = ui->nameEdit->text();
     // 获取顶点
     auto ver = hashName[oldName];
@@ -116,7 +115,15 @@ void MyCanvas::on_nameEdit_editingFinished() {
     hashName.remove(oldName);
     hashName.insert(newName, ver);
     // 更新Item
-    selectedItem->setName(newName);
+    selectedRole->setName(newName);
+  }
+  if (selectedRel != nullptr) {
+    auto text = ui->nameEdit->text();
+    //更新relData
+    this->setRelData(selectedRel->startRole()->ID, selectedRel->endRole()->ID,
+                     {text});
+    // 更新Item
+    selectedRel->setText(text);
   }
 }
 
@@ -127,10 +134,10 @@ void MyCanvas::on_openFile_clicked() {
   OpenFile = QFileDialog::getOpenFileName(
       this, "Please choose an image file", "",
       "Image Files(*.jpg *.png *.bmp *.pgm *.pbm);;All(*.*)");
-  if (OpenFile != "" && selectedItem != nullptr) {
+  if (OpenFile != "" && selectedRole != nullptr) {
     if (image.load(OpenFile)) {
       ui->imgLabel->setPixmap(QPixmap::fromImage(image));
-      selectedItem->setImgPath(OpenFile);
+      selectedRole->setImgPath(OpenFile);
     }
   }
 }
@@ -211,11 +218,11 @@ void MyCanvas::readFile() {
   qDebug() << "文件读取完成!";
 }
 
-RelData *MyCanvas::getRelData(const QString &name1, const QString &name2) {
-  auto ver1 = hashName[name1];
-  auto ver2 = hashName[name2];
-  auto relNode = net.getArc(ver1, ver2);
-  return &relNode->_data;
+void MyCanvas::setRelData(const int &ID1, const int &ID2, const RelData &e) {
+  auto ver1 = hashID[ID1];
+  auto ver2 = hashID[ID2];
+  net.getArc(ver1, ver2)->_data = e;
+  net.getRArc(ver1, ver2)->_data = e;
 }
 
 RelData *MyCanvas::addNetArc(const QString &name1, const QString &name2,
@@ -230,3 +237,26 @@ void MyCanvas::on_debugButton_clicked() {
   net.printVers();
   net.printTable();
 }
+void MyCanvas::setColor(int c) {
+  if (selectedRole != nullptr) {
+    selectedRole->setColor(c);
+    auto ver = hashID[selectedRole->ID];
+    ver->_data.color = c;
+  }
+  if (selectedRel != nullptr) {
+    selectedRel->setColor(c);
+    auto ver1 = hashID[selectedRel->startRole()->ID];
+    auto ver2 = hashID[selectedRel->endRole()->ID];
+    auto rel1 = net.getArc(ver1, ver2);
+    auto rel2 = net.getArc(ver1, ver2);
+    rel1->_data.color = c;
+    rel2->_data.color = c;
+  }
+}
+void MyCanvas::on_blueBtn_clicked() { setColor(1); }
+
+void MyCanvas::on_redBtn_clicked() { setColor(2); }
+
+void MyCanvas::on_purpleBtn_clicked() { setColor(3); }
+
+void MyCanvas::on_yellowBtn_clicked() { setColor(4); }

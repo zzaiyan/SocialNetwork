@@ -1,13 +1,13 @@
 #include "rel.h"
 
 Rel::Rel(Role *startRole, Role *endRole)
-    : start(startRole), end(endRole), text(""), arrowSize(15) {
+    : start(startRole), end(endRole), text(""), arrowSize(15), color(BLUE) {
   start->addRel(this);
   end->addRel(this);
   relTag = new QGraphicsTextItem;
   relTag->setParentItem(this);
+  relTag->setFlag(QGraphicsItem::ItemIsSelectable);
   setZValue(-1000);
-  setColor(1);
   adjust();
 }
 
@@ -17,6 +17,7 @@ Rel::Rel(Role *startRole, Role *endRole, int c, QString text)
   end->addRel(this);
   relTag = new QGraphicsTextItem;
   relTag->setParentItem(this);
+  relTag->setFlag(QGraphicsItem::ItemIsSelectable);
   setZValue(-1000);
   setColor(c);
   adjust();
@@ -50,15 +51,16 @@ QRectF Rel::boundingRect() const {
       .adjusted(-extra, -extra, extra, extra);
 }
 
-void Rel::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
+void Rel::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                 QWidget *) {
   if (!start || !end || isRemoved)
     return;
   QLineF line(startPoint, endPoint);
   if (qFuzzyCompare(line.length(), qreal(0.)))
     return;
-  // Draw the line itself
   painter->setPen(QPen(color, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+  painter->setBrush(color);
+  // Draw the line itself
   painter->drawLine(line);
   // Draw the arrows
   double angle = std::atan2(-line.dy(), line.dx());
@@ -73,9 +75,9 @@ void Rel::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
   QPointF endArrowP2 =
       endPoint + QPointF(sin(angle - M_PI + M_PI / 3) * arrowSize,
                          cos(angle - M_PI + M_PI / 3) * arrowSize);
-  painter->setBrush(color);
+
   painter->drawPolygon(QPolygonF() << line.p2() << endArrowP1 << endArrowP2);
-  //
+  // Draw the text
   if (!text.isEmpty()) {
     center = (start->scenePos() + start->boundingRect().center() +
               end->scenePos() + end->boundingRect().center()) /
@@ -108,8 +110,9 @@ void Rel::setColor(int c) {
     color = YELLOW;
     break;
   }
-  adjust();
+  update();
 }
+
 void Rel::removeThis() {
   if (!isRemoved) {
     if (relTag)

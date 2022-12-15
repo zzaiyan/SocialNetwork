@@ -1,9 +1,12 @@
 #include "mycanvas.h"
 #include "ui_mycanvas.h"
 #include <QDebug>
-
-#define ID_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id0.csv"
-#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data0.csv"
+// 再筵的
+#define ROLE_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\id0.csv"
+#define REL_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\data0.csv"
+// 琪琪的
+// #define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id0.csv"
+// #define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data0.csv"
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);
@@ -12,6 +15,7 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->addRole->setIcon(QIcon(":/icon/role2.svg"));
   ui->deleteRole->setIconSize(QSize(20, 20));
   ui->deleteRole->setIcon(QIcon(":/icon/delete.svg"));
+
   scene = new QGraphicsScene;
   view = new GraphView(this); // 绑定this与view
 
@@ -31,7 +35,7 @@ MyCanvas::~MyCanvas() { delete ui; }
 void MyCanvas::repaint() {
   if (!scene->selectedItems().isEmpty()) {
     selectedItem = scene->selectedItems().front();
-    if (selectedItem->type() == Role::Type) { //当前选中的是role
+    if (selectedItem->type() == Role::Type) { // 当前选中的是role
       selectedRel = nullptr;
       selectedRole = qgraphicsitem_cast<Role *>(selectedItem);
       QString imgPath = selectedRole->imgPath, name = selectedRole->name;
@@ -44,7 +48,7 @@ void MyCanvas::repaint() {
       ui->nameEdit->setReadOnly(false);
       ui->infoEdit->setReadOnly(false);
       ui->openFile->setEnabled(true);
-    } else { //当前选中的是rel
+    } else { // 当前选中的是rel
       selectedRole = nullptr;
       selectedRel = qgraphicsitem_cast<Rel *>(selectedItem->parentItem());
       QPixmap p(":/icon/relation.svg");
@@ -60,7 +64,7 @@ void MyCanvas::repaint() {
       ui->infoEdit->setReadOnly(true);
       ui->openFile->setEnabled(false);
     }
-  } else { //选中的是别的地方
+  } else { // 选中的是别的地方
     selectedRole = nullptr;
     selectedRel = nullptr;
     QPixmap p;
@@ -119,7 +123,7 @@ void MyCanvas::on_nameEdit_editingFinished() {
   }
   if (selectedRel != nullptr) {
     auto text = ui->nameEdit->text();
-    //更新relData
+    // 更新relData
     this->setRelData(selectedRel->startRole()->ID, selectedRel->endRole()->ID,
                      {text});
     // 更新Item
@@ -157,7 +161,7 @@ void MyCanvas::readFile() {
   //  names.clear();
   std::ifstream ifs;
 
-  ifs.open(ID_FILE, std::ios::in);
+  ifs.open(ROLE_FILE, std::ios::in);
   if (!ifs) {
     qDebug() << "ID_FILE open error!";
     exit(1);
@@ -168,24 +172,24 @@ void MyCanvas::readFile() {
     auto li = qBuf.split(',');
     auto it = li.begin();
     auto name = *it++;
-    //    auto ID = it->toInt();
-
+    auto color = it->toInt() % 4 + 1;
+    auto ID = roleCnt++;
     // 建立Role
-    auto roleItem = new Role(roleCnt++, name);
-    //    roleItem->setName(name);
-
+    auto roleItem = new Role(ID, name);
+    roleItem->setColor(color);
+    // 加入场景
     scene->addItem(roleItem);
-
     // 建立顶点，绑定Role
-    auto ver = net.addVer({roleItem->ID, roleItem->name});
+    auto ver = net.addVer({ID, name});
+    ver->_data.color = color;
 
-    qDebug() << QString("%1 -> %2").arg(roleItem->name).arg(roleItem->ID);
+    qDebug() << QString("%1 -> %2").arg(name).arg(ID);
 
     ver->_data.setItem(roleItem);
 
     // 哈希表记录
-    hashName.insert(roleItem->name, ver);
-    hashID.insert(roleItem->ID, ver);
+    hashID.insert(ID, ver);
+    hashName.insert(name, ver);
   }
   ifs.close();
 
@@ -218,7 +222,12 @@ void MyCanvas::readFile() {
   qDebug() << "文件读取完成!";
 }
 
-void MyCanvas::setRelData(const int &ID1, const int &ID2, const RelData &e) {
+void MyCanvas::writeFile() {
+  std::ofstream ofs;
+  ofs.open(ROLE_FILE, std::ios::out);
+}
+
+void MyCanvas::setRelData(int ID1, int ID2, const RelData &e) {
   auto ver1 = hashID[ID1];
   auto ver2 = hashID[ID2];
   net.getArc(ver1, ver2)->_data = e;
@@ -247,10 +256,8 @@ void MyCanvas::setColor(int c) {
     selectedRel->setColor(c);
     auto ver1 = hashID[selectedRel->startRole()->ID];
     auto ver2 = hashID[selectedRel->endRole()->ID];
-    auto rel1 = net.getArc(ver1, ver2);
-    auto rel2 = net.getArc(ver1, ver2);
-    rel1->_data.color = c;
-    rel2->_data.color = c;
+    net.getArc(ver1, ver2)->_data.color = c;
+    net.getArc(ver1, ver2)->_data.color = c;
   }
 }
 void MyCanvas::on_blueBtn_clicked() { setColor(1); }

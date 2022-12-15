@@ -56,26 +56,28 @@ private slots:
   void on_debugButton_clicked();
 
 public: // from Zzaiyan
-  void setRelData(const int &ID1, const int &ID2, const RelData &e);
+  void setRelData(int ID1, int ID2, const RelData &e);
   RelData *addNetArc(const QString &name1, const QString &name2,
                      const QString &label);
   void setColor(int c);
-
-private:
-  Ui::MyCanvas *ui;
-  QGraphicsScene *scene;
-  GraphView *view;
-  QGraphicsItem *selectedItem = nullptr;
-  Role *selectedRole;
-  Rel *selectedRel;
-
-  int roleCnt = 0;
 
   ALNet<RoleData, RelData> net; // 有向网
   QHash<QString, ALNet<RoleData, RelData>::VerNode *> hashName;
   QHash<int, ALNet<RoleData, RelData>::VerNode *> hashID;
 
+private:
+  Ui::MyCanvas *ui;
+  QGraphicsScene *scene;
+  GraphView *view;
+
+  QGraphicsItem *selectedItem = nullptr;
+  Role *selectedRole = nullptr;
+  Rel *selectedRel = nullptr;
+
+  int roleCnt = 0;
+
   void readFile();
+  void writeFile();
 };
 
 #endif // MYCANVAS_H

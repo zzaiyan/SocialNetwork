@@ -64,16 +64,22 @@ void GraphView::mouseReleaseEvent(QMouseEvent *mouseEvent) {
         startItems.first() != endItems.first()) {
       Role *startItem = qgraphicsitem_cast<Role *>(startItems.first());
       Role *endItem = qgraphicsitem_cast<Role *>(endItems.first());
-      Rel *rel = new Rel(startItem, endItem);
+      // 判断是否已有边
+      auto ver1 = canvas->hashID[startItem->ID];
+      auto ver2 = canvas->hashID[endItem->ID];
+      if (!canvas->net.haveArc(ver1, ver2) &&
+          !canvas->net.haveArc(ver2, ver1)) {
+        Rel *rel = new Rel(startItem, endItem);
 
-      rel->setText("newRelation");
+        rel->setText("newRelation");
 
-      canvas->addNetArc(startItem->name, endItem->name, "newRelation");
+        canvas->addNetArc(startItem->name, endItem->name, "newRelation");
 
-      qDebug() << startItem->name << endItem->name;
-      startItem->addRel(rel);
-      endItem->addRel(rel);
-      scene()->addItem(rel);
+        qDebug() << startItem->name << endItem->name;
+        startItem->addRel(rel);
+        endItem->addRel(rel);
+        scene()->addItem(rel);
+      }
     }
   }
   line = nullptr;

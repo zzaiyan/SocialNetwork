@@ -13,8 +13,8 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
 
   ui->addRole->setIconSize(QSize(25, 25));
   ui->addRole->setIcon(QIcon(":/icon/role2.svg"));
-  ui->deleteRole->setIconSize(QSize(20, 20));
-  ui->deleteRole->setIcon(QIcon(":/icon/delete.svg"));
+  ui->deleteItem->setIconSize(QSize(20, 20));
+  ui->deleteItem->setIcon(QIcon(":/icon/delete.svg"));
 
   scene = new QGraphicsScene;
   view = new GraphView(this); // 绑定this与view
@@ -97,13 +97,19 @@ void MyCanvas::on_addRole_clicked() {
   scene->addItem(newRole);
 }
 
-void MyCanvas::on_deleteRole_clicked() {
+void MyCanvas::on_deleteItem_clicked() {
   if (selectedRole != nullptr) {
     //    selectedItem = nullptr;
     qDebug() << "remove:" << selectedRole->ID << selectedRole->name;
     auto ver = hashID[selectedRole->ID];
     selectedRole->removeThis();
     net.rmVer(ver);
+  }
+  if (selectedRel != nullptr) {
+    auto ver1 = hashID[selectedRel->startRole()->ID];
+    auto ver2 = hashID[selectedRel->endRole()->ID];
+    net.rmArc(ver1, ver2);
+    selectedRel->removeThis();
   }
 }
 

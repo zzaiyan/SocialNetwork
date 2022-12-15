@@ -37,7 +37,7 @@ private slots:
 
   void on_addRole_clicked();
 
-  void on_deleteRole_clicked();
+  void on_deleteItem_clicked();
 
   void on_blueBtn_clicked();
 

@@ -54,23 +54,23 @@ QGraphicsView{
 	border: 1px solid #BEBFC2;
 	border-radius: 2px;
 }
-QPushButton#addRole,#exportImg{
+QPushButton#addRole,#exportImg,#debugButton{
 	background-color: rgba(255,255,255,100);
 	border:1px solid #60a2dc;
 	color:#2e84cf;
 	border-radius: 5px;
 }
-QPushButton#addRole:hover,#exportImg:hover{
+QPushButton#addRole:hover,#exportImg:hover,#debugButton:hover{
 	background-color: #D7EAFB;
 	color: #158EF2;
 }
-QPushButton#deleteRole{
+QPushButton#deleteItem{
 	background-color: rgba(255,255,255,100);
 	border:1px solid #DE5F5F;
 	color:#CF322E;
 	border-radius: 5px;
 }
-QPushButton#deleteRole:hover{
+QPushButton#deleteItem:hover{
 	background-color: #FBD7D7;
 }
 QPushButton#blueBtn{
@@ -124,7 +124,7 @@ QPushButton#yellowBtn:hover{
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="deleteRole">
+      <widget class="QPushButton" name="deleteItem">
        <property name="minimumSize">
         <size>
          <width>125</width>
@@ -138,7 +138,7 @@ QPushButton#yellowBtn:hover{
         </font>
        </property>
        <property name="text">
-        <string>删除人物</string>
+        <string>移除选中项</string>
        </property>
       </widget>
      </item>

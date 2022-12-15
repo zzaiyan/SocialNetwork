@@ -62,15 +62,14 @@ void GraphView::mouseReleaseEvent(QMouseEvent *mouseEvent) {
         startItems.first()->type() == Role::Type &&
         endItems.first()->type() == Role::Type &&
         startItems.first() != endItems.first()) {
-      Role *startItem = qgraphicsitem_cast<Role *>(startItems.first());
-      Role *endItem = qgraphicsitem_cast<Role *>(endItems.first());
+      auto startItem = qgraphicsitem_cast<Role *>(startItems.first());
+      auto endItem = qgraphicsitem_cast<Role *>(endItems.first());
       // 判断是否已有边
       auto ver1 = canvas->hashID[startItem->ID];
       auto ver2 = canvas->hashID[endItem->ID];
       if (!canvas->net.haveArc(ver1, ver2) &&
           !canvas->net.haveArc(ver2, ver1)) {
-        Rel *rel = new Rel(startItem, endItem);
-
+        auto rel = new Rel(startItem, endItem);
         rel->setText("newRelation");
 
         canvas->addNetArc(startItem->name, endItem->name, "newRelation");

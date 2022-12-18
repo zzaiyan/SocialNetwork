@@ -157,13 +157,18 @@ void MyCanvas::on_openFile_clicked() {
 }
 
 void MyCanvas::on_exportImg_clicked() {
-  QSize mysize(scene->width() * 2,
-               scene->height() * 2); // 获取 QGraphicsScene.size
-  QImage image(mysize, QImage::Format_ARGB32_Premultiplied); // 保存透明度
-  QPainter painter(&image);
-  painter.setRenderHint(QPainter::HighQualityAntialiasing);
-  scene->render(&painter); // 关键函数
-  image.save("D:\\SaveGraphicsScene.png");
+  QString filePath =
+      QFileDialog::getSaveFileName(this, "save", QString(), " *.png");
+  if (!filePath.isEmpty()) {
+    scene->update();
+    QSize mysize(scene->width(), scene->height()); // 获取 QGraphicsScene.size
+    QPixmap pixmap(mysize);
+    pixmap.fill(Qt::transparent); // 设置背景为透明
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
+    scene->render(&painter); // 关键函数
+    pixmap.save(filePath, "PNG", 100);
+  }
 }
 
 void MyCanvas::readFile() {

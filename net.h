@@ -2,17 +2,12 @@
 #define NET_H
 
 #include <QDebug>
-#include <QList>
 #include <QString>
-#include <QVector>
-#include <list>
-#include <map>
 #include <queue>
 #include <stack>
 #include <vector>
 
 using std::list;
-using std::map;
 using std::queue;
 using std::stack;
 using std::vector;
@@ -23,7 +18,8 @@ public:
   struct VerNode { // 顶点
     int _pos;
     VerData _data;
-    QList<ArcNode> _Adj, _rAdj; // 出度表 + 入度表
+    list<ArcNode> _Adj, _rAdj; // 出度表 + 入度表
+
     VerNode(int i = -1) : _pos(i) {}
     VerNode(int i, const VerData &e) : _pos(i), _data(e) {}
   };
@@ -34,7 +30,7 @@ public:
   };
 
 private:
-  QVector<VerNode *> vers; // 顶点数组
+  vector<VerNode *> vers; // 顶点数组
 
   int fromNum(const ArcNode &a) {
     return a.from->_pos; // 获取起点下标
@@ -44,10 +40,10 @@ private:
   }
 
 public:
-  QList<ArcNode> &Adj(int id) {
+  list<ArcNode> &Adj(int id) {
     return vers[id]->_Adj; // 获取邻接表
   }
-  QList<ArcNode> &rAdj(int id) {
+  list<ArcNode> &rAdj(int id) {
     return vers[id]->_rAdj; // 获取逆邻接表
   }
 
@@ -204,7 +200,7 @@ public:
     }
   }
 
-  QString getList(const QList<ArcNode> &li) {
+  QString getList(const list<ArcNode> &li) {
     QString buf;
     for (auto it = li.begin(); it != li.end(); it++) {
       if (it != li.begin())

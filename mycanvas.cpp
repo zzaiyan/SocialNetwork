@@ -1,12 +1,16 @@
 #include "mycanvas.h"
 #include "ui_mycanvas.h"
 #include <QDebug>
-// 再筵的
+
+#define zzaiyan // 琪琪请注释该行
+
+#ifdef zzaiyan
 #define ROLE_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\id0.csv"
 #define REL_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\data0.csv"
-// 琪琪的
-// #define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id0.csv"
-// #define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data0.csv"
+#else
+#define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id0.csv"
+#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data0.csv"
+#endif
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);

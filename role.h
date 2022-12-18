@@ -8,15 +8,17 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneEvent>
 #include <QGraphicsView>
+#include <QObject>
 #include <QRectF>
 #include <QtSvg>
 
 class Rel;
+class GraphView;
 class Role : public QGraphicsItem {
 public:
   enum { Type = UserType + 77 };
   int type() const override { return Type; }
-  Role(int id, QString tname = "", QString imgPath = "");
+  Role(int id, GraphView *view, QString tname = "", QString imgPath = "");
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget) override;
@@ -26,12 +28,17 @@ public:
   void addRel(Rel *rel);
   void removeThis();
 
+  void calculateForces();
+  bool advancePosition();
+
   //  RoleData *data = nullptr;
   //  void setData(RoleData *p) { data = p; }
 
   int ID;
   QString imgPath;
   QString name;
+  QPointF newPos;
+  GraphView *view;
 
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *event) override;

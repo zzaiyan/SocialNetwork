@@ -60,6 +60,7 @@ public: // from Zzaiyan
   RelData *addNetArc(const QString &name1, const QString &name2,
                      const QString &label);
   void setColor(int c);
+  void shuffle();
 
   ALNet<RoleData, RelData> net; // 有向网
   QHash<QString, ALNet<RoleData, RelData>::VerNode *> hashName;

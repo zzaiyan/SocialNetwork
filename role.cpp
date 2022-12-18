@@ -1,7 +1,8 @@
 #include "role.h"
+#include "graphview.h"
 
-Role::Role(int id, QString tname, QString imgPath)
-    : ID(id), imgPath(imgPath), color(BLUE), radius(30) {
+Role::Role(int id, GraphView *view, QString tname, QString imgPath)
+    : ID(id), view(view), imgPath(imgPath), color(BLUE), radius(30) {
   // 可选择、可移动
   setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
   setFlag(ItemSendsGeometryChanges);   // 打开通知
@@ -100,6 +101,67 @@ void Role::setColor(int c) {
   }
   update();
 }
+
+//推拉力算法
+void Role::calculateForces() {
+  if (!scene() || scene()->mouseGrabberItem() == this) {
+    newPos = pos();
+    return;
+  }
+  //画布中的节点会互相排斥
+  // 计算将节点推开的力
+  qreal xvel = 0;
+  qreal yvel = 0;
+  const QList<QGraphicsItem *> items = scene()->items();
+  for (QGraphicsItem *item : items) {
+    //使用qgraphicsitem_cast（）来查找Role实例并进行类型转换，即去掉边Item
+    Role *role = qgraphicsitem_cast<Role *>(item);
+    if (!role)
+      continue;
+    //创建一个临时矢量，从this节点指向另一个节点
+    QPointF vec = mapToItem(role, 0, 0);
+    //我们使用此矢量的分解分量来确定应用于this节点的力的方向和强度。
+    qreal dx = vec.x();
+    qreal dy = vec.y();
+    //力为每个节点累积，然后进行调整，以便为最近的节点提供最强的力，当距离增加时会迅速退化。
+    double l = 2.0 * (dx * dx + dy * dy);
+    if (l > 0) {
+      xvel += (dx * 1000.0) / l;
+      yvel += (dy * 1000.0) / l;
+    }
+  }
+  //有关联的节点通过连线相连，并且相互靠拢
+  // 减去将节点拉在一起的力
+  double weight = (relList.size() + 1) * 10;
+  //通过访问连接到此节点的每个边，我们可以使用与上面类似的方法来找到所有拉力的方向和强度。
+  for (Rel *rel : relList) {
+    QPointF vec;
+    if (rel->startRole() == this)
+      vec = mapToItem(rel->endRole(), 0, 0);
+    else
+      vec = mapToItem(rel->startRole(), 0, 0);
+    xvel -= vec.x() / weight;
+    yvel -= vec.y() / weight;
+  }
+  //为了规避数值精度的误差，我们只需强制力的总和在小于0.1时为0。
+  if (qAbs(xvel) < 1.1 && qAbs(yvel) < 1.1)
+    xvel = yvel = 0;
+  qDebug() << xvel << " " << yvel;
+
+  //确定节点的新位置。我们将力添加到节点的当前位置。
+  newPos = pos() + QPointF(xvel, yvel);
+  newPos.setX(newPos.x());
+  newPos.setY(newPos.y());
+}
+
+bool Role::advancePosition() {
+  if (newPos == pos())
+    return false;
+
+  setPos(newPos);
+  return true;
+}
+
 void Role::setName(QString tname) {
   name = tname;
   nameTag->setPlainText(tname);
@@ -114,11 +176,13 @@ void Role::addRel(Rel *rel) {
   relList << rel;
   rel->adjust();
 }
+
 QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
   switch (change) {
   case ItemPositionHasChanged:
     foreach (Rel *rel, relList)
       rel->adjust();
+    view->itemMoved();
     break;
   default:
     break;

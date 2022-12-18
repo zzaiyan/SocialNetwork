@@ -8,8 +8,8 @@
 #define ROLE_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\id0.csv"
 #define REL_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\data0.csv"
 #else
-#define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id0.csv"
-#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data0.csv"
+#define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id.csv"
+#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data.csv"
 #endif
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
@@ -21,6 +21,7 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->deleteItem->setIcon(QIcon(":/icon/delete.svg"));
 
   scene = new QGraphicsScene;
+  // scene->setSceneRect(-500, -500, 1000, 1000);
   view = new GraphView(this); // 绑定this与view
 
   view->setScene(scene);
@@ -28,7 +29,6 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->horizontalLayout_6->addWidget(view);
   ui->imgLabel->setScaledContents(true);
   ui->openFile->setEnabled(false);
-  // advance();
   connect(scene, SIGNAL(selectionChanged()), this, SLOT(repaint()));
 
   readFile();
@@ -85,7 +85,7 @@ void MyCanvas::repaint() {
 
 void MyCanvas::on_addRole_clicked() {
   // 新建roleItem，分配ID
-  auto *newRole = new Role(roleCnt++);
+  auto *newRole = new Role(roleCnt++, view);
 
   auto viewSize = view->size();
   // 每次添加人物的位置都保证在视图的中心点处
@@ -171,6 +171,16 @@ void MyCanvas::on_exportImg_clicked() {
   }
 }
 
+void MyCanvas::shuffle() {
+  auto viewSize = view->size();
+  QPointF p(view->mapToScene(viewSize.width() / 2, viewSize.height() / 2));
+  const QList<QGraphicsItem *> items = scene->items();
+  for (QGraphicsItem *item : items) {
+    if (qgraphicsitem_cast<Role *>(item))
+      item->setPos(p.x() + QRandomGenerator::global()->bounded(100),
+                   p.y() + QRandomGenerator::global()->bounded(100));
+  }
+}
 void MyCanvas::readFile() {
   hashName.clear();
   //  names.clear();
@@ -190,7 +200,7 @@ void MyCanvas::readFile() {
     auto color = it->toInt() % 4 + 1;
     auto ID = roleCnt++;
     // 建立Role
-    auto roleItem = new Role(ID, name);
+    auto roleItem = new Role(ID, view, name);
     roleItem->setColor(color);
     // 加入场景
     scene->addItem(roleItem);
@@ -226,12 +236,11 @@ void MyCanvas::readFile() {
                     .arg(qBuf);
     // 初始化标签，new Rel对象
     auto relItem = new Rel(pa->_data.item, pb->_data.item, 1, qBuf);
-
     scene->addItem(relItem);
     // 在net中生成边
     net.addArc(pa, pb, {qBuf});
   }
-
+  shuffle();
   ifs.close();
 
   qDebug() << "文件读取完成!";

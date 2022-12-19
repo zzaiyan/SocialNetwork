@@ -126,10 +126,20 @@ void Role::calculateForces() {
     //力为每个节点累积，然后进行调整，以便为最近的节点提供最强的力，当距离增加时会迅速退化。
     double l = 2.0 * (dx * dx + dy * dy);
     if (l > 0) {
-      xvel += (dx * 1000.0) / l;
-      yvel += (dy * 1000.0) / l;
+      xvel += (dx * 2000.0) / l;
+      yvel += (dy * 2000.0) / l;
     }
   }
+  //假设所有节点与画布中心点都有一条看不见的弹性绳
+  //节点距离画布中心越远，收到绳子的拉力越大
+  QPointF vec = scenePos() - view->mapToScene(view->size().width() / 2,
+                                              view->size().height() / 2);
+  qreal dx = vec.x();
+  qreal dy = vec.y();
+  qDebug() << vec.x() << " " << vec.y();
+  xvel -= dx / 50;
+  yvel -= dy / 50;
+
   //有关联的节点通过连线相连，并且相互靠拢
   // 减去将节点拉在一起的力
   double weight = (relList.size() + 1) * 10;
@@ -143,10 +153,9 @@ void Role::calculateForces() {
     xvel -= vec.x() / weight;
     yvel -= vec.y() / weight;
   }
-  //为了规避数值精度的误差，我们只需强制力的总和在小于0.1时为0。
-  if (qAbs(xvel) < 1.1 && qAbs(yvel) < 1.1)
+  //为了规避数值精度的误差，我们只需强制力的总和在小于0.5时为0。
+  if (qAbs(xvel) < 0.5 && qAbs(yvel) < 0.5)
     xvel = yvel = 0;
-  qDebug() << xvel << " " << yvel;
 
   //确定节点的新位置。我们将力添加到节点的当前位置。
   newPos = pos() + QPointF(xvel, yvel);

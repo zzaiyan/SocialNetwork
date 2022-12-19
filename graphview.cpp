@@ -15,17 +15,17 @@ GraphView::GraphView(MyCanvas *p, QWidget *parent)
   line = nullptr;
 }
 
-//通过此itemMoved（）函数收到节点移动的通知。
-//它的工作只是重新启动主计时器，以防它尚未运行。
+// 通过此itemMoved（）函数收到节点移动的通知。
+// 它的工作只是重新启动主计时器，以防它尚未运行。
 void GraphView::itemMoved() {
   if (!timerId)
     timerId = startTimer(5);
 }
 
-//计时器事件处理程序的工作是将整个力计算机制作为平滑动画运行。
+// 计时器事件处理程序的工作是将整个力计算机制作为平滑动画运行。
 void GraphView::timerEvent(QTimerEvent *event) {
   Q_UNUSED(event);
-  //计算所有节点受到的力
+  // 计算所有节点受到的力
   QVector<Role *> roles;
   const QList<QGraphicsItem *> items = scene()->items();
   for (QGraphicsItem *item : items) {
@@ -34,13 +34,13 @@ void GraphView::timerEvent(QTimerEvent *event) {
   }
   for (Role *role : qAsConst(roles))
     role->calculateForces();
-  //将所有节点移动到其新位置
+  // 将所有节点移动到其新位置
   bool itemsMoved = false;
   for (Role *role : qAsConst(roles)) {
     if (role->advancePosition())
       itemsMoved = true;
   }
-  //如果没有节点移动，停止计时器
+  // 如果没有节点移动，停止计时器
   if (!itemsMoved) {
     killTimer(timerId);
     timerId = 0;
@@ -107,8 +107,8 @@ void GraphView::mouseReleaseEvent(QMouseEvent *mouseEvent) {
         canvas->addNetArc(startItem->name, endItem->name, "newRelation");
 
         qDebug() << startItem->name << endItem->name;
-        startItem->addRel(rel);
-        endItem->addRel(rel);
+        //        startItem->addRel(rel);
+        //        endItem->addRel(rel);
         scene()->addItem(rel);
       }
     }

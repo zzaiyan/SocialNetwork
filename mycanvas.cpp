@@ -2,7 +2,7 @@
 #include "ui_mycanvas.h"
 #include <QDebug>
 
-//#define zzaiyan // 琪琪请注释该行
+// #define zzaiyan // 琪琪请注释该行
 
 #ifdef zzaiyan
 #define ROLE_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\id0.csv"
@@ -108,8 +108,10 @@ void MyCanvas::on_deleteItem_clicked() {
     net.rmVer(ver);
   }
   if (selectedRel != nullptr) {
-    auto ver1 = hashID[selectedRel->startRole()->ID];
-    auto ver2 = hashID[selectedRel->endRole()->ID];
+    auto start = selectedRel->startRole();
+    auto end = selectedRel->endRole();
+    auto ver1 = hashID[start->ID];
+    auto ver2 = hashID[end->ID];
     net.rmArc(ver1, ver2);
     selectedRel->removeThis();
   }
@@ -179,10 +181,12 @@ void MyCanvas::shuffle() {
                    p.y() + QRandomGenerator::global()->bounded(100));
   }
 }
-//清空场景
+// 清空场景
 void MyCanvas::clear() {
   QList<QGraphicsItem *> all = scene->items();
-  foreach (QGraphicsItem *item, all) { scene->removeItem(item); }
+  foreach (QGraphicsItem *item, all) {
+    scene->removeItem(item);
+  }
 }
 
 void MyCanvas::readFile() {

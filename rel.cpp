@@ -118,6 +118,8 @@ void Rel::removeThis() {
     if (relTag)
       scene()->removeItem(relTag);
     scene()->removeItem(this);
+    start->removeRel(this);
+    end->removeRel(this);
+    isRemoved = true;
   }
-  isRemoved = true;
 }

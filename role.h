@@ -27,6 +27,7 @@ public:
   void setImgPath(QString path);
   void addRel(Rel *rel);
   void removeThis();
+  void removeRel(Rel *rel);
 
   void calculateForces();
   bool advancePosition();

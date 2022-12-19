@@ -102,36 +102,36 @@ void Role::setColor(int c) {
   update();
 }
 
-//推拉力算法
+// 推拉力算法
 void Role::calculateForces() {
   if (!scene() || scene()->mouseGrabberItem() == this) {
     newPos = pos();
     return;
   }
-  //画布中的节点会互相排斥
-  // 计算将节点推开的力
+  // 画布中的节点会互相排斥
+  //  计算将节点推开的力
   qreal xvel = 0;
   qreal yvel = 0;
   const QList<QGraphicsItem *> items = scene()->items();
   for (QGraphicsItem *item : items) {
-    //使用qgraphicsitem_cast（）来查找Role实例并进行类型转换，即去掉边Item
+    // 使用qgraphicsitem_cast（）来查找Role实例并进行类型转换，即去掉边Item
     Role *role = qgraphicsitem_cast<Role *>(item);
     if (!role)
       continue;
-    //创建一个临时矢量，从this节点指向另一个节点
+    // 创建一个临时矢量，从this节点指向另一个节点
     QPointF vec = mapToItem(role, 0, 0);
-    //我们使用此矢量的分解分量来确定应用于this节点的力的方向和强度。
+    // 我们使用此矢量的分解分量来确定应用于this节点的力的方向和强度。
     qreal dx = vec.x();
     qreal dy = vec.y();
-    //力为每个节点累积，然后进行调整，以便为最近的节点提供最强的力，当距离增加时会迅速退化。
+    // 力为每个节点累积，然后进行调整，以便为最近的节点提供最强的力，当距离增加时会迅速退化。
     double l = 2.0 * (dx * dx + dy * dy);
     if (l > 0) {
       xvel += (dx * 2000.0) / l;
       yvel += (dy * 2000.0) / l;
     }
   }
-  //假设所有节点与画布中心点都有一条看不见的弹性绳
-  //节点距离画布中心越远，收到绳子的拉力越大
+  // 假设所有节点与画布中心点都有一条看不见的弹性绳
+  // 节点距离画布中心越远，收到绳子的拉力越大
   QPointF vec = scenePos();
   qreal dx = vec.x();
   qreal dy = vec.y();
@@ -139,10 +139,10 @@ void Role::calculateForces() {
   xvel -= dx / 50;
   yvel -= dy / 50;
 
-  //有关联的节点通过连线相连，并且相互靠拢
-  // 减去将节点拉在一起的力
+  // 有关联的节点通过连线相连，并且相互靠拢
+  //  减去将节点拉在一起的力
   double weight = (relList.size() + 1) * 10;
-  //通过访问连接到此节点的每个边，我们可以使用与上面类似的方法来找到所有拉力的方向和强度。
+  // 通过访问连接到此节点的每个边，我们可以使用与上面类似的方法来找到所有拉力的方向和强度。
   for (Rel *rel : relList) {
     QPointF vec;
     if (rel->startRole() == this)
@@ -152,11 +152,11 @@ void Role::calculateForces() {
     xvel -= vec.x() / weight;
     yvel -= vec.y() / weight;
   }
-  //为了规避数值精度的误差，我们只需强制力的总和在小于0.5时为0。
-  if (qAbs(xvel) < 0.5 && qAbs(yvel) < 0.5)
+  // 为了规避数值精度的误差，我们只需强制力的总和在小于0.5时为0。
+  if (qAbs(xvel) < 1 && qAbs(yvel) < 1)
     xvel = yvel = 0;
 
-  //确定节点的新位置。我们将力添加到节点的当前位置。
+  // 确定节点的新位置。我们将力添加到节点的当前位置。
   newPos = pos() + QPointF(xvel, yvel);
   newPos.setX(newPos.x());
   newPos.setY(newPos.y());
@@ -199,6 +199,18 @@ QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
 }
 
 void Role::removeThis() {
-  foreach (Rel *rel, relList) { rel->removeThis(); }
+  foreach (Rel *rel, relList) {
+    rel->removeThis();
+  }
+  this->relList.clear();
   scene()->removeItem(this);
+}
+
+void Role::removeRel(Rel *rel) {
+  for (auto it = relList.begin(); it != relList.end(); it++) {
+    if (*it == rel) {
+      relList.erase(it);
+      break;
+    }
+  }
 }

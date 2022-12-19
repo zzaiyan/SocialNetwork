@@ -135,7 +135,7 @@ void Role::calculateForces() {
   QPointF vec = scenePos();
   qreal dx = vec.x();
   qreal dy = vec.y();
-  qDebug() << vec.x() << " " << vec.y();
+  // qDebug() << vec.x() << " " << vec.y();
   xvel -= dx / 50;
   yvel -= dy / 50;
 

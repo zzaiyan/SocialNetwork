@@ -61,10 +61,12 @@ public: // from Zzaiyan
                      const QString &label);
   void setColor(int c);
   void shuffle();
+  void clear();
 
   ALNet<RoleData, RelData> net; // 有向网
   QHash<QString, ALNet<RoleData, RelData>::VerNode *> hashName;
   QHash<int, ALNet<RoleData, RelData>::VerNode *> hashID;
+  void readFile();
 
 private:
   Ui::MyCanvas *ui;
@@ -76,8 +78,6 @@ private:
   Rel *selectedRel = nullptr;
 
   int roleCnt = 0;
-
-  void readFile();
   void writeFile();
 };
 

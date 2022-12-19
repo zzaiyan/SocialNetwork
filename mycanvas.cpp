@@ -21,7 +21,7 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->deleteItem->setIcon(QIcon(":/icon/delete.svg"));
 
   scene = new QGraphicsScene;
-  scene->setSceneRect(-5000, -5000, 10000, 10000);
+  // scene->setSceneRect(-5000, -5000, 10000, 10000);
   view = new GraphView(this); // 绑定this与view
 
   view->setScene(scene);
@@ -30,8 +30,6 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->imgLabel->setScaledContents(true);
   ui->openFile->setEnabled(false);
   connect(scene, SIGNAL(selectionChanged()), this, SLOT(repaint()));
-
-  readFile();
 }
 
 MyCanvas::~MyCanvas() { delete ui; }
@@ -181,6 +179,12 @@ void MyCanvas::shuffle() {
                    p.y() + QRandomGenerator::global()->bounded(100));
   }
 }
+//清空场景
+void MyCanvas::clear() {
+  QList<QGraphicsItem *> all = scene->items();
+  foreach (QGraphicsItem *item, all) { scene->removeItem(item); }
+}
+
 void MyCanvas::readFile() {
   hashName.clear();
   //  names.clear();

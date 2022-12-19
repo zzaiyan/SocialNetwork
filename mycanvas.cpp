@@ -8,8 +8,8 @@
 #define ROLE_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\id0.csv"
 #define REL_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\data0.csv"
 #else
-#define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id0.csv"
-#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data0.csv"
+#define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id.csv"
+#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data.csv"
 #endif
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
@@ -21,7 +21,7 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->deleteItem->setIcon(QIcon(":/icon/delete.svg"));
 
   scene = new QGraphicsScene;
-  // scene->setSceneRect(-500, -500, 1000, 1000);
+  scene->setSceneRect(-5000, -5000, 10000, 10000);
   view = new GraphView(this); // 绑定this与view
 
   view->setScene(scene);

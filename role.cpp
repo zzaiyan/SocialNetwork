@@ -132,8 +132,7 @@ void Role::calculateForces() {
   }
   //假设所有节点与画布中心点都有一条看不见的弹性绳
   //节点距离画布中心越远，收到绳子的拉力越大
-  QPointF vec = scenePos() - view->mapToScene(view->size().width() / 2,
-                                              view->size().height() / 2);
+  QPointF vec = scenePos();
   qreal dx = vec.x();
   qreal dy = vec.y();
   qDebug() << vec.x() << " " << vec.y();

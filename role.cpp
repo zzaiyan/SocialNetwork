@@ -1,14 +1,14 @@
 #include "role.h"
+#include "graphview.h"
 #include <algorithm>
 #include <cmath>
-#include "graphview.h"
 
-Role::Role(int id, GraphView* view, QString tname, QString imgPath)
+Role::Role(int id, GraphView *view, QString tname, QString imgPath)
     : ID(id), view(view), imgPath(imgPath), color(BLUE), radius(20) {
   // 可选择、可移动
   setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
-  setFlag(ItemSendsGeometryChanges);    // 打开通知
-  setCacheMode(DeviceCoordinateCache);  // 加快渲染性能
+  setFlag(ItemSendsGeometryChanges);   // 打开通知
+  setCacheMode(DeviceCoordinateCache); // 加快渲染性能
   if (tname == "")
     name = "Role-" + QString::number(id);
   else
@@ -28,9 +28,8 @@ QRectF Role::boundingRect() const {
                 2 * radius + adjust);
 }
 
-void Role::paint(QPainter* painter,
-                 const QStyleOptionGraphicsItem* option,
-                 QWidget* widget) {
+void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                 QWidget *widget) {
   Q_UNUSED(widget);
   QPen pen(Qt::NoPen);
   QBrush brush;
@@ -38,11 +37,11 @@ void Role::paint(QPainter* painter,
   prepareGeometryChange();
   int degree = relList.size();
   radius = 12 * log(degree + 1) / log(3) + 20;
-  if (option->state & QStyle::State_Sunken) {  // 设置按下时的颜色
+  if (option->state & QStyle::State_Sunken) { // 设置按下时的颜色
     brush.setColor(color.darker(130));
-  } else if (option->state & QStyle::State_Selected) {  // 设置选中时的颜色
+  } else if (option->state & QStyle::State_Selected) { // 设置选中时的颜色
     brush.setColor(color.darker(120));
-  } else {  // 设置松开时的颜色
+  } else { // 设置松开时的颜色
     brush.setColor(color);
   }
   painter->setPen(pen);
@@ -81,33 +80,33 @@ void Role::paint(QPainter* painter,
   }
 }
 
-void Role::mousePressEvent(QGraphicsSceneMouseEvent* event) {
-  if (event->buttons() & Qt::LeftButton) {  // 若按下左键
+void Role::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+  if (event->buttons() & Qt::LeftButton) { // 若按下左键
     QGraphicsItem::mousePressEvent(event);
   }
   update();
 }
-void Role::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
+void Role::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
   QGraphicsItem::mouseMoveEvent(event);
 }
-void Role::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
+void Role::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
   QGraphicsItem::mouseReleaseEvent(event);
   update();
 }
 void Role::setColor(int c) {
   switch (c) {
-    case 1:
-      color = BLUE;
-      break;
-    case 2:
-      color = RED;
-      break;
-    case 3:
-      color = PURPLE;
-      break;
-    case 4:
-      color = YELLOW;
-      break;
+  case 1:
+    color = BLUE;
+    break;
+  case 2:
+    color = RED;
+    break;
+  case 3:
+    color = PURPLE;
+    break;
+  case 4:
+    color = YELLOW;
+    break;
   }
   update();
 }
@@ -122,10 +121,10 @@ void Role::calculateForces() {
   //  计算将节点推开的力
   qreal xvel = 0;
   qreal yvel = 0;
-  const QList<QGraphicsItem*> items = scene()->items();
-  for (QGraphicsItem* item : items) {
+  const QList<QGraphicsItem *> items = scene()->items();
+  for (QGraphicsItem *item : items) {
     // 使用qgraphicsitem_cast（）来查找Role实例并进行类型转换，即去掉边Item
-    Role* role = qgraphicsitem_cast<Role*>(item);
+    Role *role = qgraphicsitem_cast<Role *>(item);
     if (!role)
       continue;
     // 创建一个临时矢量，从this节点指向另一个节点
@@ -155,11 +154,11 @@ void Role::calculateForces() {
   double weight = (relList.size() + 1) * 10;
   // 通过访问连接到此节点的每个边，我们可以使用与上面类似的方法来找到所有拉力的方向和强度。
   auto vecLen = [](QPointF p) { return sqrt(p.x() * p.x() + p.y() * p.y()); };
-  for (auto&& rel : relList) {
+  for (auto &&rel : relList) {
     QPointF vec;
     auto start = rel->startRole();
     auto end = rel->endRole();
-    auto dis = vecLen(end->scenePos() - start->scenePos());  // center distance
+    auto dis = vecLen(end->scenePos() - start->scenePos()); // center distance
     if (start == this)
       vec = mapToItem(end, 0, 0);
     else
@@ -197,38 +196,39 @@ void Role::setImgPath(QString path) {
   imgPath = path;
   update();
 }
-void Role::addRel(Rel* rel) {
+
+void Role::addRel(Rel *rel) {
   relList << rel;
+  int degree = relList.size();
+  radius = 12 * log(degree + 1) / log(3) + 20;
   update();
   view->itemMoved();
   rel->adjust();
 }
 
-QVariant Role::itemChange(GraphicsItemChange change, const QVariant& value) {
+QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
   switch (change) {
-    case ItemPositionHasChanged:
-      foreach (Rel* rel, relList) {
-        rel->adjust();
-        rel->drawText();
-      }
-      view->itemMoved();
-      break;
-    default:
-      break;
+  case ItemPositionHasChanged:
+    foreach (Rel *rel, relList) {
+      rel->adjust();
+      rel->drawText();
+    }
+    view->itemMoved();
+    break;
+  default:
+    break;
   };
   return QGraphicsItem::itemChange(change, value);
 }
 
 void Role::removeThis() {
-  foreach (Rel* rel, relList) {
-    rel->removeThis();
-  }
+  foreach (Rel *rel, relList) { rel->removeThis(); }
   this->relList.clear();
   scene()->removeItem(this);
   view->itemMoved();
 }
 
-void Role::removeRel(Rel* rel) {
+void Role::removeRel(Rel *rel) {
   for (auto it = relList.begin(); it != relList.end(); it++) {
     if (*it == rel) {
       relList.erase(it);

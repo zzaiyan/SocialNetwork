@@ -1,12 +1,6 @@
 #include "rel.h"
 
-Rel::Rel(Role* startRole, Role* endRole)
-    : start(startRole), end(endRole), text(""), arrowSize(15), color(BLUE) {
-  init();
-  adjust();
-}
-
-Rel::Rel(Role* startRole, Role* endRole, int c, QString text)
+Rel::Rel(Role* startRole, Role* endRole, QString text, int c)
     : start(startRole), end(endRole), text(text), arrowSize(15) {
   setColor(c);
   init();

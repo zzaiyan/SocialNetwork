@@ -2,8 +2,8 @@
 #include <QDebug>
 #include "ui_mycanvas.h"
 
-#define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
-#define REL_FILE "../SocialNetworkAnalist/data/data.csv"
+//#define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
+//#define REL_FILE "../SocialNetworkAnalist/data/data.csv"
 #define DATA_FILE "../SocialNetworkAnalist/data.csv"
 
 MyCanvas::MyCanvas(QWidget* parent) : QWidget(parent), ui(new Ui::MyCanvas) {
@@ -198,27 +198,56 @@ void MyCanvas::clear() {
 void MyCanvas::readFile() {
   std::ifstream ifs;
 
-  ifs.open(ROLE_FILE, std::ios::in);
+  ifs.open(DATA_FILE, std::ios::in);
   if (!ifs) {
-    qDebug() << "ID_FILE open error!";
+    qDebug() << "DATA_FILE read error!";
     exit(1);
   }
+
   std::string lineBuf;
-  while (std::getline(ifs, lineBuf)) {
-    auto qBuf = QString::fromLocal8Bit(lineBuf.data());
-    auto li = qBuf.split(',');
+  int lineCnt = 0, verNum, arcNum;
+  {  // Code Scope : avoid name conflict
+    std::getline(ifs, lineBuf);
+    auto buf = QString(lineBuf.data());
+    auto li = buf.split(',');
     auto it = li.begin();
+
+    verNum = (*it++).toInt();
+    arcNum = (*it++).toInt();
+    auto x = (*it++).toDouble();
+    auto y = (*it++).toDouble();
+
+    here should be deal;
+    scene->setSceneRect(0, 0, x, y);
+  }
+  while (lineCnt < verNum && std::getline(ifs, lineBuf)) {
+    auto buf = QString(lineBuf.data());
+    auto li = buf.split(',');
+    auto it = li.begin();
+
     auto name = *it++;
-    auto color = it->toInt() % 4 + 1;
-    auto ID = roleCnt++;
+    auto color = (*it++).toInt();
+    auto pos_x = (*it++).toDouble();
+    auto pos_y = (*it++).toDouble();
+    auto path = *it++;
+    if (path.size() <= 2)
+      path = "";
+
+    int ID = ++lineCnt;  // ID: 1~n
+
     // 建立Role
     auto roleItem = new Role(ID, view, name);
     roleItem->setColor(color);
     // 加入场景
     scene->addItem(roleItem);
+    // setPosition
+
+    here does not effect;
+    roleItem->setPos(pos_x, pos_y);
+
     // 建立顶点，绑定Role
-    auto ver = net.addVer({ID, name});
-    ver->_data.color = color;
+    auto ver = net.addVer({ID, name, roleItem, color, path});
+    //    ver->_data.color = color;
 
     qDebug() << QString("%1 -> %2").arg(name).arg(ID);
 
@@ -228,29 +257,28 @@ void MyCanvas::readFile() {
     hashID.insert(ID, ver);
     hashName.insert(name, ver);
   }
-  ifs.close();
 
-  ifs.open(REL_FILE, std::ios::in);
-  if (!ifs) {
-    qDebug() << "REL_FILE open error!";
-    exit(1);
-  }
-  while (getline(ifs, lineBuf)) {
-    auto qBuf = QString::fromLocal8Bit(lineBuf.data());
-    auto li = qBuf.split(',');
+  lineCnt = 0;  // reset counter
+
+  while (lineCnt < arcNum && getline(ifs, lineBuf)) {
+    auto buf = QString(lineBuf.data());
+    auto li = buf.split(',');
     auto it = li.begin();
-    auto pa = hashName[*it++];
-    auto pb = hashName[*it++];
-    qBuf = *it;
+
+    auto ver1 = hashName[*it++];
+    auto ver2 = hashName[*it++];
+    auto label = *it++;
+    auto color = (*it++).toInt();
+
     qDebug() << QString("<%1, %2> = %3")
-                    .arg(pa->_data.name)
-                    .arg(pb->_data.name)
-                    .arg(qBuf);
+                    .arg(ver1->_data.name)
+                    .arg(ver2->_data.name)
+                    .arg(label);
     // 初始化标签，new Rel对象
-    auto relItem = new Rel(pa->_data.item, pb->_data.item, 1, qBuf);
+    auto relItem = new Rel(ver1->_data.item, ver2->_data.item, label, color);
     scene->addItem(relItem);
     // 在net中生成边
-    net.addArc(pa, pb, {qBuf});
+    net.addArc(ver1, ver2, {label, color});
   }
   shuffle();
   ifs.close();
@@ -289,10 +317,11 @@ void MyCanvas::writeFile() {
   for (int i = 0; i < verNum; i++) {
     auto li = vers[i]->_Adj;
     for (auto&& ver : li) {
-      buf = QString("%1,%2,%3")
+      buf = QString("%1,%2,%3,%4")
                 .arg(ver.from->_data.name)
                 .arg(ver.to->_data.name)
-                .arg(ver._data.label);
+                .arg(ver._data.label)
+                .arg(ver._data.color);
       ofs << buf.toStdString() << "\n";
     }
   }

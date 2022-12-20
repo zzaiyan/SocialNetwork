@@ -1,21 +1,20 @@
 #ifndef REL_H
 #define REL_H
 
-#include "node.h"
-#include "role.h"
 #include <QFont>
 #include <QGraphicsItem>
+#include "node.h"
+#include "role.h"
 
 struct RelData;
 class Role;
 class Rel : public QGraphicsItem {
-public:
+ public:
   enum { Type = UserType + 11 };
   int type() const override { return Type; }
   bool isRemoved = 0;
   QString text;
-  Rel(Role *startRole, Role *endRole);
-  Rel(Role *startRole, Role *endRole, int c, QString text = "");
+  Rel(Role* startRole, Role* endRole, QString text = "", int c = 1);
   void init();
   void adjust();
   void setColor(int c);
@@ -27,17 +26,18 @@ public:
     adjust();
   }
   void drawText();
-  Role *startRole() { return start; }
-  Role *endRole() { return end; }
+  Role* startRole() { return start; }
+  Role* endRole() { return end; }
 
-protected:
+ protected:
   QRectF boundingRect() const override;
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-             QWidget *widget) override;
+  void paint(QPainter* painter,
+             const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override;
 
-private:
+ private:
   /* For display temporary tag */
-  QGraphicsTextItem *relTag = nullptr;
+  QGraphicsTextItem* relTag = nullptr;
   QFont tagFont = QFont("微软雅黑", 12, QFont::Normal);
   /* basic data */
   Role *start, *end;
@@ -53,4 +53,4 @@ private:
   QColor color;
 };
 
-#endif // REL_H
+#endif  // REL_H

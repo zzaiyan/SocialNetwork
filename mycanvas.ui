@@ -281,9 +281,6 @@ QPushButton#yellowBtn:hover{
        <property name="text">
         <string>力导向分布优化</string>
        </property>
-       <property name="icon">
-        <iconset theme="accessories-calculator"/>
-       </property>
        <property name="iconSize">
         <size>
          <width>30</width>

@@ -1,12 +1,12 @@
 #include "rel.h"
 
-Rel::Rel(Role *startRole, Role *endRole)
+Rel::Rel(Role* startRole, Role* endRole)
     : start(startRole), end(endRole), text(""), arrowSize(15), color(BLUE) {
   init();
   adjust();
 }
 
-Rel::Rel(Role *startRole, Role *endRole, int c, QString text)
+Rel::Rel(Role* startRole, Role* endRole, int c, QString text)
     : start(startRole), end(endRole), text(text), arrowSize(15) {
   setColor(c);
   init();
@@ -55,8 +55,9 @@ QRectF Rel::boundingRect() const {
       .adjusted(-extra, -extra, extra, extra);
 }
 
-void Rel::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                QWidget *) {
+void Rel::paint(QPainter* painter,
+                const QStyleOptionGraphicsItem* option,
+                QWidget*) {
   if (!start || !end || isRemoved)
     return;
   QLineF line(startPoint, endPoint);
@@ -99,9 +100,14 @@ void Rel::drawText() {
     relTag->setHtml("<div style = 'background-color:rgba(255,255,255,150);' >" +
                     text + "</div>");
     relTag->adjustSize();
-    center = (start->scenePos() + start->boundingRect().center() +
-              end->scenePos() + end->boundingRect().center()) /
-             2;
+    auto vecLen = [](QPointF p) { return sqrt(p.x() * p.x() + p.y() * p.y()); };
+    auto AB = end->scenePos() - start->scenePos();
+    auto AM = AB *
+              (start->getRadius() +
+               0.5 * (vecLen(AB) - start->getRadius() - end->getRadius()) -
+               arrowSize * 1.732 / 4) /
+              vecLen(AB);
+    center = (start->scenePos() + AM);
     relTag->setPos(center - QPointF(relTag->boundingRect().width(),
                                     relTag->boundingRect().height()) /
                                 2);
@@ -109,18 +115,18 @@ void Rel::drawText() {
 }
 void Rel::setColor(int c) {
   switch (c) {
-  case 1:
-    color = BLUE;
-    break;
-  case 2:
-    color = RED;
-    break;
-  case 3:
-    color = PURPLE;
-    break;
-  case 4:
-    color = YELLOW;
-    break;
+    case 1:
+      color = BLUE;
+      break;
+    case 2:
+      color = RED;
+      break;
+    case 3:
+      color = PURPLE;
+      break;
+    case 4:
+      color = YELLOW;
+      break;
   }
   update();
 }

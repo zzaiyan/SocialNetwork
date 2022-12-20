@@ -1,4 +1,5 @@
 #include "role.h"
+#include <algorithm>
 #include <cmath>
 #include "graphview.h"
 
@@ -74,6 +75,7 @@ void Role::paint(QPainter* painter,
                          QRectF(-radius, -radius, 2 * radius, 2 * radius));
     }
     nameTag->setVisible(true);
+    nameTag->setPos(-nameTag->textWidth() / 2, radius);
   } else {
     nameTag->setVisible(false);
   }
@@ -134,7 +136,7 @@ void Role::calculateForces() {
     // 力为每个节点累积，然后进行调整，以便为最近的节点提供最强的力，当距离增加时会迅速退化。
     double l = 2.0 * (dx * dx + dy * dy);
     if (l > 0) {
-      int degree = relList.size();
+      //      int degree = relList.size();
       xvel += (dx * 2000.0) / l;
       yvel += (dy * 2000.0) / l;
     }
@@ -152,18 +154,24 @@ void Role::calculateForces() {
   //  减去将节点拉在一起的力
   double weight = (relList.size() + 1) * 10;
   // 通过访问连接到此节点的每个边，我们可以使用与上面类似的方法来找到所有拉力的方向和强度。
-  for (Rel* rel : relList) {
+  auto vecLen = [](QPointF p) { return sqrt(p.x() * p.x() + p.y() * p.y()); };
+  for (auto&& rel : relList) {
     QPointF vec;
-    if (rel->startRole() == this)
-      vec = mapToItem(rel->endRole(), 0, 0);
+    auto start = rel->startRole();
+    auto end = rel->endRole();
+    auto dis = vecLen(end->scenePos() - start->scenePos());  // center distance
+    if (start == this)
+      vec = mapToItem(end, 0, 0);
     else
-      vec = mapToItem(rel->startRole(), 0, 0);
-    xvel -= vec.x() / weight;
-    yvel -= vec.y() / weight;
+      vec = mapToItem(start, 0, 0);
+    auto edgeDis = std::max(0.0, dis - start->getRadius() - end->getRadius());
+    auto rate = edgeDis / dis;
+    xvel -= vec.x() * rate / weight;
+    yvel -= vec.y() * rate / weight;
   }
   // 为了规避数值精度的误差，我们只需强制力的总和在小于1时为0。
-  if (qAbs(xvel) < 1 && qAbs(yvel) < 1)
-    xvel = yvel = 0;
+  if (vecLen({xvel, yvel}) < 1)
+    xvel = 0, yvel = 0;
 
   // 确定节点的新位置。我们将力添加到节点的当前位置。
   newPos = pos() + QPointF(xvel, yvel);

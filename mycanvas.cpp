@@ -4,6 +4,7 @@
 
 #define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
 #define REL_FILE "../SocialNetworkAnalist/data/data.csv"
+#define DATA_FILE "../SocialNetworkAnalist/data.csv"
 
 MyCanvas::MyCanvas(QWidget* parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);
@@ -256,12 +257,43 @@ void MyCanvas::readFile() {
 
 void MyCanvas::writeFile() {
   std::ofstream ofs;
-  ofs.open(ROLE_FILE, std::ios::out);
+  ofs.open(DATA_FILE, std::ios::out);
 
   auto& vers = net.getVers();
-  QString buf;
-  for (int i = 0; i < vers.size(); i++) {
+  int verNum = vers.size(), arcNum = 0;
+
+  for (int i = 0; i < verNum; i++) {
+    arcNum += vers[i]->_Adj.size();
   }
+  auto buf = QString("%1,%2,%3,%4")
+                 .arg(verNum)
+                 .arg(arcNum)
+                 .arg(scene->sceneRect().width())
+                 .arg(scene->sceneRect().height());
+  ofs << buf.toStdString() << "\n";  // verNum and arcNum
+
+  for (int i = 0; i < verNum; i++) {  // for Vers
+    auto& data = vers[i]->_data;
+    buf = QString("%1,%2,%3,%4,%5")
+              .arg(data.name)
+              .arg(data.color)
+              .arg(data.item->scenePos().x())
+              .arg(data.item->scenePos().y())
+              .arg(data.imgPath);
+    ofs << buf.toStdString() << "\n";
+  }
+
+  for (int i = 0; i < verNum; i++) {
+    auto li = vers[i]->_Adj;
+    for (auto&& ver : li) {
+      buf = QString("%1,%2,%3")
+                .arg(ver.from->_data.name)
+                .arg(ver.to->_data.name)
+                .arg(ver._data.label);
+      ofs << buf.toStdString() << "\n";
+    }
+  }
+  ofs.close();
 }
 
 void MyCanvas::setRelData(int ID1, int ID2, const RelData& e) {
@@ -283,6 +315,7 @@ RelData* MyCanvas::addNetArc(const QString& name1,
 void MyCanvas::on_debugButton_clicked() {
   net.printVers();
   net.printTable();
+  writeFile();
 }
 void MyCanvas::setColor(int c) {
   if (selectedRole != nullptr) {

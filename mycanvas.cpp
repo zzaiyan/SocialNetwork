@@ -1,11 +1,11 @@
 #include "mycanvas.h"
-#include "ui_mycanvas.h"
 #include <QDebug>
+#include "ui_mycanvas.h"
 
-#define ROLE_FILE "../SocialNetworkAnalist/data/id0.csv"
-#define REL_FILE "../SocialNetworkAnalist/data/data0.csv"
+#define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
+#define REL_FILE "../SocialNetworkAnalist/data/data.csv"
 
-MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
+MyCanvas::MyCanvas(QWidget* parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);
 
   ui->addRole->setIconSize(QSize(25, 25));
@@ -15,7 +15,7 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
 
   scene = new QGraphicsScene;
   // scene->setSceneRect(-5000, -5000, 10000, 10000);
-  view = new GraphView(this); // 绑定this与view
+  view = new GraphView(this);  // 绑定this与view
 
   view->setScene(scene);
   view->setMinimumWidth(400);
@@ -25,14 +25,16 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   connect(scene, SIGNAL(selectionChanged()), this, SLOT(repaint()));
 }
 
-MyCanvas::~MyCanvas() { delete ui; }
+MyCanvas::~MyCanvas() {
+  delete ui;
+}
 
 void MyCanvas::repaint() {
   if (!scene->selectedItems().isEmpty()) {
     selectedItem = scene->selectedItems().front();
-    if (selectedItem->type() == Role::Type) { // 当前选中的是role
+    if (selectedItem->type() == Role::Type) {  // 当前选中的是role
       selectedRel = nullptr;
-      selectedRole = qgraphicsitem_cast<Role *>(selectedItem);
+      selectedRole = qgraphicsitem_cast<Role*>(selectedItem);
       QString imgPath = selectedRole->imgPath, name = selectedRole->name;
       QPixmap p(imgPath.isEmpty() ? ":/icon/role.svg" : imgPath);
       ui->imgLabel->setPixmap(p);
@@ -43,9 +45,9 @@ void MyCanvas::repaint() {
       ui->nameEdit->setReadOnly(false);
       ui->infoEdit->setReadOnly(false);
       ui->openFile->setEnabled(true);
-    } else { // 当前选中的是rel
+    } else {  // 当前选中的是rel
       selectedRole = nullptr;
-      selectedRel = qgraphicsitem_cast<Rel *>(selectedItem->parentItem());
+      selectedRel = qgraphicsitem_cast<Rel*>(selectedItem->parentItem());
       QPixmap p(":/icon/relation.svg");
       ui->imgLabel->setPixmap(p);
       ui->nameEdit->setText(selectedRel->text);
@@ -59,7 +61,7 @@ void MyCanvas::repaint() {
       ui->infoEdit->setReadOnly(true);
       ui->openFile->setEnabled(false);
     }
-  } else { // 选中的是别的地方
+  } else {  // 选中的是别的地方
     selectedRole = nullptr;
     selectedRel = nullptr;
     QPixmap p;
@@ -76,7 +78,7 @@ void MyCanvas::repaint() {
 
 void MyCanvas::on_addRole_clicked() {
   // 新建roleItem，分配ID
-  auto *newRole = new Role(roleCnt++, view);
+  auto* newRole = new Role(roleCnt++, view);
 
   auto viewSize = view->size();
   // 每次添加人物的位置都保证在视图的中心点处
@@ -155,12 +157,12 @@ void MyCanvas::on_exportImg_clicked() {
       QFileDialog::getSaveFileName(this, "save", QString(), " *.png");
   if (!filePath.isEmpty()) {
     scene->update();
-    QSize mysize(scene->width(), scene->height()); // 获取 QGraphicsScene.size
+    QSize mysize(scene->width(), scene->height());  // 获取 QGraphicsScene.size
     QPixmap pixmap(mysize);
-    pixmap.fill(Qt::transparent); // 设置背景为透明
+    pixmap.fill(Qt::transparent);  // 设置背景为透明
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
-    scene->render(&painter); // 关键函数
+    scene->render(&painter);  // 关键函数
     pixmap.save(filePath, "PNG", 100);
   }
 }
@@ -168,9 +170,9 @@ void MyCanvas::on_exportImg_clicked() {
 void MyCanvas::shuffle() {
   auto viewSize = view->size();
   QPointF p(view->mapToScene(viewSize.width() / 2, viewSize.height() / 2));
-  const QList<QGraphicsItem *> items = scene->items();
-  for (QGraphicsItem *item : items) {
-    if (qgraphicsitem_cast<Role *>(item))
+  const QList<QGraphicsItem*> items = scene->items();
+  for (QGraphicsItem* item : items) {
+    if (qgraphicsitem_cast<Role*>(item))
       item->setPos(p.x() + QRandomGenerator::global()->bounded(100),
                    p.y() + QRandomGenerator::global()->bounded(100));
   }
@@ -178,8 +180,10 @@ void MyCanvas::shuffle() {
 
 void MyCanvas::clear() {
   // 清空场景
-  QList<QGraphicsItem *> all = scene->items();
-  foreach (QGraphicsItem *item, all) { scene->removeItem(item); }
+  QList<QGraphicsItem*> all = scene->items();
+  foreach (QGraphicsItem* item, all) {
+    scene->removeItem(item);
+  }
   //清空数据结构
   net.clear();
   hashName.clear();
@@ -254,21 +258,22 @@ void MyCanvas::writeFile() {
   std::ofstream ofs;
   ofs.open(ROLE_FILE, std::ios::out);
 
-  auto &vers = net.getVers();
+  auto& vers = net.getVers();
   QString buf;
   for (int i = 0; i < vers.size(); i++) {
   }
 }
 
-void MyCanvas::setRelData(int ID1, int ID2, const RelData &e) {
+void MyCanvas::setRelData(int ID1, int ID2, const RelData& e) {
   auto ver1 = hashID[ID1];
   auto ver2 = hashID[ID2];
   net.getArc(ver1, ver2)->_data = e;
   net.getRArc(ver1, ver2)->_data = e;
 }
 
-RelData *MyCanvas::addNetArc(const QString &name1, const QString &name2,
-                             const QString &label) {
+RelData* MyCanvas::addNetArc(const QString& name1,
+                             const QString& name2,
+                             const QString& label) {
   auto ver1 = hashName[name1];
   auto ver2 = hashName[name2];
   auto relData = net.addArc(ver1, ver2, {label});
@@ -293,13 +298,21 @@ void MyCanvas::setColor(int c) {
     net.getArc(ver1, ver2)->_data.color = c;
   }
 }
-void MyCanvas::on_blueBtn_clicked() { setColor(1); }
+void MyCanvas::on_blueBtn_clicked() {
+  setColor(1);
+}
 
-void MyCanvas::on_redBtn_clicked() { setColor(2); }
+void MyCanvas::on_redBtn_clicked() {
+  setColor(2);
+}
 
-void MyCanvas::on_purpleBtn_clicked() { setColor(3); }
+void MyCanvas::on_purpleBtn_clicked() {
+  setColor(3);
+}
 
-void MyCanvas::on_yellowBtn_clicked() { setColor(4); }
+void MyCanvas::on_yellowBtn_clicked() {
+  setColor(4);
+}
 
 void MyCanvas::on_comboBox_currentIndexChanged(int index) {
   SearchModelChoice = index;
@@ -308,21 +321,21 @@ void MyCanvas::on_comboBox_currentIndexChanged(int index) {
 
 void MyCanvas::on_queryButton_clicked() {
   QString queryText = ui->queryEdit->text();
-  ALNet<RoleData, RelData>::VerNode *ver = nullptr;
+  ALNet<RoleData, RelData>::VerNode* ver = nullptr;
   switch (SearchModelChoice) {
-  case 0: //按ID查询
-    if (hashID.contains(queryText.toInt()))
-      ver = hashID[queryText.toInt()];
-    break;
-  case 1: //按姓名查询
-    if (hashName.contains(queryText))
-      ver = hashName[queryText];
-    break;
-  default:
-    break;
+    case 0:  //按ID查询
+      if (hashID.contains(queryText.toInt()))
+        ver = hashID[queryText.toInt()];
+      break;
+    case 1:  //按姓名查询
+      if (hashName.contains(queryText))
+        ver = hashName[queryText];
+      break;
+    default:
+      break;
   };
   if (ver != nullptr) {
-    Role *role = ver->_data.item;
+    Role* role = ver->_data.item;
     view->centerOn(role);
     scene->clearSelection();
     role->setSelected(true);

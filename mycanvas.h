@@ -1,11 +1,6 @@
 #ifndef MYCANVAS_H
 #define MYCANVAS_H
 
-#include "graphview.h"
-#include "net.h"
-#include "node.h"
-#include "rel.h"
-#include "role.h"
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QGraphicsItem>
@@ -17,6 +12,11 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "graphview.h"
+#include "net.h"
+#include "node.h"
+#include "rel.h"
+#include "role.h"
 
 namespace Ui {
 class MyCanvas;
@@ -27,11 +27,11 @@ class GraphView;
 class MyCanvas : public QWidget {
   Q_OBJECT
 
-public:
-  explicit MyCanvas(QWidget *parent = nullptr);
+ public:
+  explicit MyCanvas(QWidget* parent = nullptr);
   ~MyCanvas();
 
-private slots:
+ private slots:
 
   void repaint();
 
@@ -61,32 +61,33 @@ private slots:
 
   void on_checkBox_stateChanged(int arg1);
 
-public: // from Zzaiyan
-  void setRelData(int ID1, int ID2, const RelData &e);
-  RelData *addNetArc(const QString &name1, const QString &name2,
-                     const QString &label);
+ public:  // from Zzaiyan
+  void setRelData(int ID1, int ID2, const RelData& e);
+  RelData* addNetArc(const QString& name1,
+                     const QString& name2,
+                     const QString& label);
   void setColor(int c);
   void shuffle();
   void clear();
 
-  ALNet<RoleData, RelData> net; // 有向网
-  QHash<QString, ALNet<RoleData, RelData>::VerNode *> hashName;
-  QHash<int, ALNet<RoleData, RelData>::VerNode *> hashID;
+  ALNet<RoleData, RelData> net;  // 有向网
+  QHash<QString, ALNet<RoleData, RelData>::VerNode*> hashName;
+  QHash<int, ALNet<RoleData, RelData>::VerNode*> hashID;
 
   void readFile();
+  void writeFile();
 
-private:
-  Ui::MyCanvas *ui;
-  QGraphicsScene *scene;
-  GraphView *view;
+ private:
+  Ui::MyCanvas* ui;
+  QGraphicsScene* scene;
+  GraphView* view;
 
-  QGraphicsItem *selectedItem = nullptr;
-  Role *selectedRole = nullptr;
-  Rel *selectedRel = nullptr;
+  QGraphicsItem* selectedItem = nullptr;
+  Role* selectedRole = nullptr;
+  Rel* selectedRel = nullptr;
 
   int SearchModelChoice = 0;
   int roleCnt = 0;
-  void writeFile();
 };
 
-#endif // MYCANVAS_H
+#endif  // MYCANVAS_H

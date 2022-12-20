@@ -158,12 +158,15 @@ void MyCanvas::on_exportImg_clicked() {
       QFileDialog::getSaveFileName(this, "save", QString(), " *.png");
   if (!filePath.isEmpty()) {
     scene->update();
-    QSize mysize(scene->width(), scene->height());  // 获取 QGraphicsScene.size
+    // 导出区域为包含所有item的边界矩形
+    QSize mysize(scene->itemsBoundingRect().width(),
+                 scene->itemsBoundingRect().height());
     QPixmap pixmap(mysize);
     pixmap.fill(Qt::transparent);  // 设置背景为透明
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
-    scene->render(&painter);  // 关键函数
+    scene->render(&painter, QRectF(), scene->itemsBoundingRect());  // 关键函数
+
     pixmap.save(filePath, "PNG", 100);
   }
 }
@@ -268,8 +271,8 @@ void MyCanvas::writeFile() {
   auto buf = QString("%1,%2,%3,%4")
                  .arg(verNum)
                  .arg(arcNum)
-                 .arg(scene->sceneRect().width())
-                 .arg(scene->sceneRect().height());
+                 .arg(scene->itemsBoundingRect().width())
+                 .arg(scene->itemsBoundingRect().height());
   ofs << buf.toStdString() << "\n";  // verNum and arcNum
 
   for (int i = 0; i < verNum; i++) {  // for Vers

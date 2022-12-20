@@ -1,12 +1,12 @@
 #include "mycanvas.h"
-#include <QDebug>
 #include "ui_mycanvas.h"
+#include <QDebug>
 
 //#define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
 //#define REL_FILE "../SocialNetworkAnalist/data/data.csv"
 #define DATA_FILE "../SocialNetworkAnalist/data.csv"
 
-MyCanvas::MyCanvas(QWidget* parent) : QWidget(parent), ui(new Ui::MyCanvas) {
+MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);
 
   ui->addRole->setIconSize(QSize(25, 25));
@@ -16,7 +16,7 @@ MyCanvas::MyCanvas(QWidget* parent) : QWidget(parent), ui(new Ui::MyCanvas) {
 
   scene = new QGraphicsScene;
   // scene->setSceneRect(-5000, -5000, 10000, 10000);
-  view = new GraphView(this);  // 绑定this与view
+  view = new GraphView(this); // 绑定this与view
 
   view->setScene(scene);
   view->setMinimumWidth(400);
@@ -28,14 +28,19 @@ MyCanvas::MyCanvas(QWidget* parent) : QWidget(parent), ui(new Ui::MyCanvas) {
 
 MyCanvas::~MyCanvas() {
   delete ui;
+  delete scene;
+  delete view;
+  delete selectedItem;
+  delete selectedRole;
+  delete selectedRel;
 }
 
 void MyCanvas::repaint() {
   if (!scene->selectedItems().isEmpty()) {
     selectedItem = scene->selectedItems().front();
-    if (selectedItem->type() == Role::Type) {  // 当前选中的是role
+    if (selectedItem->type() == Role::Type) { // 当前选中的是role
       selectedRel = nullptr;
-      selectedRole = qgraphicsitem_cast<Role*>(selectedItem);
+      selectedRole = qgraphicsitem_cast<Role *>(selectedItem);
       QString imgPath = selectedRole->imgPath, name = selectedRole->name;
       QPixmap p(imgPath.isEmpty() ? ":/icon/role.svg" : imgPath);
       ui->imgLabel->setPixmap(p);
@@ -46,9 +51,9 @@ void MyCanvas::repaint() {
       ui->nameEdit->setReadOnly(false);
       ui->infoEdit->setReadOnly(false);
       ui->openFile->setEnabled(true);
-    } else {  // 当前选中的是rel
+    } else { // 当前选中的是rel
       selectedRole = nullptr;
-      selectedRel = qgraphicsitem_cast<Rel*>(selectedItem->parentItem());
+      selectedRel = qgraphicsitem_cast<Rel *>(selectedItem->parentItem());
       QPixmap p(":/icon/relation.svg");
       ui->imgLabel->setPixmap(p);
       ui->nameEdit->setText(selectedRel->text);
@@ -62,7 +67,7 @@ void MyCanvas::repaint() {
       ui->infoEdit->setReadOnly(true);
       ui->openFile->setEnabled(false);
     }
-  } else {  // 选中的是别的地方
+  } else { // 选中的是别的地方
     selectedRole = nullptr;
     selectedRel = nullptr;
     QPixmap p;
@@ -79,7 +84,7 @@ void MyCanvas::repaint() {
 
 void MyCanvas::on_addRole_clicked() {
   // 新建roleItem，分配ID
-  auto* newRole = new Role(roleCnt++, view);
+  auto *newRole = new Role(roleCnt++, view);
 
   auto viewSize = view->size();
   // 每次添加人物的位置都保证在视图的中心点处
@@ -162,10 +167,10 @@ void MyCanvas::on_exportImg_clicked() {
     QSize mysize(scene->itemsBoundingRect().width(),
                  scene->itemsBoundingRect().height());
     QPixmap pixmap(mysize);
-    pixmap.fill(Qt::transparent);  // 设置背景为透明
+    pixmap.fill(Qt::transparent); // 设置背景为透明
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
-    scene->render(&painter, QRectF(), scene->itemsBoundingRect());  // 关键函数
+    scene->render(&painter, QRectF(), scene->itemsBoundingRect()); // 关键函数
 
     pixmap.save(filePath, "PNG", 100);
   }
@@ -174,9 +179,9 @@ void MyCanvas::on_exportImg_clicked() {
 void MyCanvas::shuffle() {
   auto viewSize = view->size();
   QPointF p(view->mapToScene(viewSize.width() / 2, viewSize.height() / 2));
-  const QList<QGraphicsItem*> items = scene->items();
-  for (QGraphicsItem* item : items) {
-    if (qgraphicsitem_cast<Role*>(item))
+  const QList<QGraphicsItem *> items = scene->items();
+  for (QGraphicsItem *item : items) {
+    if (qgraphicsitem_cast<Role *>(item))
       item->setPos(p.x() + QRandomGenerator::global()->bounded(100),
                    p.y() + QRandomGenerator::global()->bounded(100));
   }
@@ -184,10 +189,8 @@ void MyCanvas::shuffle() {
 
 void MyCanvas::clear() {
   // 清空场景
-  QList<QGraphicsItem*> all = scene->items();
-  foreach (QGraphicsItem* item, all) {
-    scene->removeItem(item);
-  }
+  QList<QGraphicsItem *> all = scene->items();
+  foreach (QGraphicsItem *item, all) { scene->removeItem(item); }
   //清空数据结构
   net.clear();
   hashName.clear();
@@ -206,7 +209,7 @@ void MyCanvas::readFile() {
 
   std::string lineBuf;
   int lineCnt = 0, verNum, arcNum;
-  {  // Code Scope : avoid name conflict
+  { // Code Scope : avoid name conflict
     std::getline(ifs, lineBuf);
     auto buf = QString(lineBuf.data());
     auto li = buf.split(',');
@@ -217,11 +220,10 @@ void MyCanvas::readFile() {
     auto x = (*it++).toDouble();
     auto y = (*it++).toDouble();
 
-    here should be deal;
-    scene->setSceneRect(0, 0, x, y);
+    scene->setSceneRect(-x / 2, -y / 2, x, y);
   }
   while (lineCnt < verNum && std::getline(ifs, lineBuf)) {
-    auto buf = QString(lineBuf.data());
+    auto buf = QString::fromLocal8Bit(lineBuf.data());
     auto li = buf.split(',');
     auto it = li.begin();
 
@@ -233,23 +235,24 @@ void MyCanvas::readFile() {
     if (path.size() <= 2)
       path = "";
 
-    int ID = ++lineCnt;  // ID: 1~n
+    int ID = ++lineCnt; // ID: 1~n
 
     // 建立Role
     auto roleItem = new Role(ID, view, name);
     roleItem->setColor(color);
-    // 加入场景
-    scene->addItem(roleItem);
-    // setPosition
 
-    here does not effect;
+    //  加入场景
+    QTimer::singleShot(1, [this, roleItem]() { scene->addItem(roleItem); });
+    // setPosition
     roleItem->setPos(pos_x, pos_y);
+    // qDebug() << pos_x << " " << pos_y;
+    //  here does not effect;
 
     // 建立顶点，绑定Role
     auto ver = net.addVer({ID, name, roleItem, color, path});
     //    ver->_data.color = color;
 
-    qDebug() << QString("%1 -> %2").arg(name).arg(ID);
+    // qDebug() << QString("%1 -> %2").arg(name).arg(ID);
 
     ver->_data.setItem(roleItem);
 
@@ -258,10 +261,10 @@ void MyCanvas::readFile() {
     hashName.insert(name, ver);
   }
 
-  lineCnt = 0;  // reset counter
+  lineCnt = 0; // reset counter
 
   while (lineCnt < arcNum && getline(ifs, lineBuf)) {
-    auto buf = QString(lineBuf.data());
+    auto buf = QString::fromLocal8Bit(lineBuf.data());
     auto li = buf.split(',');
     auto it = li.begin();
 
@@ -290,7 +293,7 @@ void MyCanvas::writeFile() {
   std::ofstream ofs;
   ofs.open(DATA_FILE, std::ios::out);
 
-  auto& vers = net.getVers();
+  auto &vers = net.getVers();
   int verNum = vers.size(), arcNum = 0;
 
   for (int i = 0; i < verNum; i++) {
@@ -301,10 +304,10 @@ void MyCanvas::writeFile() {
                  .arg(arcNum)
                  .arg(scene->itemsBoundingRect().width())
                  .arg(scene->itemsBoundingRect().height());
-  ofs << buf.toStdString() << "\n";  // verNum and arcNum
+  ofs << buf.toStdString() << "\n"; // verNum and arcNum
 
-  for (int i = 0; i < verNum; i++) {  // for Vers
-    auto& data = vers[i]->_data;
+  for (int i = 0; i < verNum; i++) { // for Vers
+    auto &data = vers[i]->_data;
     buf = QString("%1,%2,%3,%4,%5")
               .arg(data.name)
               .arg(data.color)
@@ -316,7 +319,7 @@ void MyCanvas::writeFile() {
 
   for (int i = 0; i < verNum; i++) {
     auto li = vers[i]->_Adj;
-    for (auto&& ver : li) {
+    for (auto &&ver : li) {
       buf = QString("%1,%2,%3,%4")
                 .arg(ver.from->_data.name)
                 .arg(ver.to->_data.name)
@@ -328,16 +331,15 @@ void MyCanvas::writeFile() {
   ofs.close();
 }
 
-void MyCanvas::setRelData(int ID1, int ID2, const RelData& e) {
+void MyCanvas::setRelData(int ID1, int ID2, const RelData &e) {
   auto ver1 = hashID[ID1];
   auto ver2 = hashID[ID2];
   net.getArc(ver1, ver2)->_data = e;
   net.getRArc(ver1, ver2)->_data = e;
 }
 
-RelData* MyCanvas::addNetArc(const QString& name1,
-                             const QString& name2,
-                             const QString& label) {
+RelData *MyCanvas::addNetArc(const QString &name1, const QString &name2,
+                             const QString &label) {
   auto ver1 = hashName[name1];
   auto ver2 = hashName[name2];
   auto relData = net.addArc(ver1, ver2, {label});
@@ -363,21 +365,13 @@ void MyCanvas::setColor(int c) {
     net.getArc(ver1, ver2)->_data.color = c;
   }
 }
-void MyCanvas::on_blueBtn_clicked() {
-  setColor(1);
-}
+void MyCanvas::on_blueBtn_clicked() { setColor(1); }
 
-void MyCanvas::on_redBtn_clicked() {
-  setColor(2);
-}
+void MyCanvas::on_redBtn_clicked() { setColor(2); }
 
-void MyCanvas::on_purpleBtn_clicked() {
-  setColor(3);
-}
+void MyCanvas::on_purpleBtn_clicked() { setColor(3); }
 
-void MyCanvas::on_yellowBtn_clicked() {
-  setColor(4);
-}
+void MyCanvas::on_yellowBtn_clicked() { setColor(4); }
 
 void MyCanvas::on_comboBox_currentIndexChanged(int index) {
   SearchModelChoice = index;
@@ -386,21 +380,21 @@ void MyCanvas::on_comboBox_currentIndexChanged(int index) {
 
 void MyCanvas::on_queryButton_clicked() {
   QString queryText = ui->queryEdit->text();
-  ALNet<RoleData, RelData>::VerNode* ver = nullptr;
+  ALNet<RoleData, RelData>::VerNode *ver = nullptr;
   switch (SearchModelChoice) {
-    case 0:  //按ID查询
-      if (hashID.contains(queryText.toInt()))
-        ver = hashID[queryText.toInt()];
-      break;
-    case 1:  //按姓名查询
-      if (hashName.contains(queryText))
-        ver = hashName[queryText];
-      break;
-    default:
-      break;
+  case 0: //按ID查询
+    if (hashID.contains(queryText.toInt()))
+      ver = hashID[queryText.toInt()];
+    break;
+  case 1: //按姓名查询
+    if (hashName.contains(queryText))
+      ver = hashName[queryText];
+    break;
+  default:
+    break;
   };
   if (ver != nullptr) {
-    Role* role = ver->_data.item;
+    Role *role = ver->_data.item;
     view->centerOn(role);
     scene->clearSelection();
     role->setSelected(true);
@@ -413,4 +407,7 @@ void MyCanvas::on_checkBox_stateChanged(int arg1) {
   } else if (arg1 == 2) {
     view->mode = 1;
   }
+}
+void MyCanvas::setZoomText() {
+  ui->zoomLabel->setText(QString("缩放比例：%1%").arg(int(view->zoom * 100)));
 }

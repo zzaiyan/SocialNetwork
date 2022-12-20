@@ -19,13 +19,15 @@ class GraphView : public QGraphicsView {
 public:
   explicit GraphView(MyCanvas *p, QWidget *parent = nullptr);
   void itemMoved();
-  int mode = 0; //是否使用力导向分布算法，默认不使用
+  int mode = 0;   //是否使用力导向分布算法，默认不使用
+  qreal zoom = 1; // zoom用于记录对象的当前的缩放比
 public slots:
 protected:
   MyCanvas *canvas;
   QGraphicsLineItem *line;
   int timerId = 0;
   void wheelEvent(QWheelEvent *event) override;
+  void MyScale(qreal step);
   void mousePressEvent(QMouseEvent *mouseEvent) override;
   void mouseMoveEvent(QMouseEvent *mouseEvent) override;
   void mouseReleaseEvent(QMouseEvent *mouseEvent) override;

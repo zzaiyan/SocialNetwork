@@ -55,7 +55,7 @@ QLabel#imgLabel{
 }
 QGraphicsView{
 	border: 1px solid #BEBFC2;
-	border-radius: 2px;
+	border-bottom: 0px;
 }
 QCheckBox::indicator {
         width: 25px;
@@ -305,12 +305,61 @@ QPushButton#yellowBtn:hover{
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="7,3">
+    <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,3">
      <property name="spacing">
-      <number>30</number>
+      <number>15</number>
      </property>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_6"/>
+      <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_6" stretch="20,1">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QLabel" name="zoomLabel">
+             <property name="minimumSize">
+              <size>
+               <width>80</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Microsoft YaHei</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border: 1px solid #BEBFC2;
+border-top: 0px;
+background-color: white;
+padding: 5px;</string>
+             </property>
+             <property name="text">
+              <string>缩放比例：100%</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QWidget" name="widget" native="true">

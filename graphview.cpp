@@ -51,15 +51,20 @@ void GraphView::timerEvent(QTimerEvent *event) {
 }
 
 void GraphView::wheelEvent(QWheelEvent *event) {
-  int wheelDeltaValue = event->delta();
-  // 向上滚动，放大
-  if (wheelDeltaValue > 0) {
-    this->scale(1.2, 1.2);
-  }
-  // 向下滚动，缩小
-  else {
-    this->scale(1.0 / 1.2, 1.0 / 1.2);
-  }
+  int numValue = event->delta(); //获取事件中滚轮的步进距离
+  qreal numDegrees = numValue / 8.0;
+  qreal numSteps = numDegrees / 15.0;
+  this->MyScale(numSteps); //调用缩放接口
+}
+
+//自定义的view缩放方法
+void GraphView::MyScale(qreal step) {
+  qreal factor = 1.0 + step / 10.0;
+  zoom *= factor; // zoom用于记录对象的当前的缩放比
+  if (zoom < 0.05 || zoom > 40)
+    return;
+  this->scale(factor, factor);
+  canvas->setZoomText();
 }
 
 void GraphView::mousePressEvent(QMouseEvent *mouseEvent) {

@@ -28,13 +28,14 @@ void MainWindow::on_openFile_clicked() {
   canvas = new MyCanvas;
   canvas->setWindowModality(Qt::ApplicationModal);
   canvas->show();
+  canvas->readFile();
   //  QString OpenFile;
   //  // 打开文件夹中的csv文件
-  //  OpenFile = QFileDialog::getOpenFileName(this, "Please choose a csv file",
+  //  OpenFile = QFileDialog::getOpenFileName(this, "Please choose a csv
+  //  file",
   //  "",
   //                                          "csv file(*.csv)");
   //  if (OpenFile != "") {
   //      canvas->readFile(OpenFile);
   //  }
-  canvas->readFile();
 }

@@ -1,4 +1,5 @@
 QT       += core gui svg
+qtHaveModule(opengl): QT += opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

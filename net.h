@@ -52,6 +52,11 @@ public:
     for (int i = 0; i < s; i++) // initialize
       vers.push_back(new VerNode{i, {}});
   }
+  void clear() {
+    for (auto &&p : vers)
+      delete p;
+    vers.clear();
+  }
   // 获取下标对应的顶点指针
   VerNode *getVer(int id) { return vers[id]; }
   // 获取顶点序偶对应的边指针
@@ -94,6 +99,8 @@ public:
 
   int outDegree(int id) const { return Adj(id).size(); }
   int outDegree(VerNode *ver) const { return outDegree(ver->_pos); }
+
+  int totalDegree(VerNode *ver) const { return inDegree(ver) + outDegree(ver); }
 
   // 尾插顶点并赋值
   VerNode *addVer(const VerData &e) {

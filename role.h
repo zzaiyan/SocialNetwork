@@ -28,6 +28,7 @@ public:
   void addRel(Rel *rel);
   void removeThis();
   void removeRel(Rel *rel);
+  qreal getRadius() const { return radius; }
 
   void calculateForces();
   bool advancePosition();

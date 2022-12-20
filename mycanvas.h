@@ -55,6 +55,10 @@ private slots:
 
   void on_debugButton_clicked();
 
+  void on_queryButton_clicked();
+
+  void on_comboBox_currentIndexChanged(int index);
+
 public: // from Zzaiyan
   void setRelData(int ID1, int ID2, const RelData &e);
   RelData *addNetArc(const QString &name1, const QString &name2,
@@ -66,6 +70,7 @@ public: // from Zzaiyan
   ALNet<RoleData, RelData> net; // 有向网
   QHash<QString, ALNet<RoleData, RelData>::VerNode *> hashName;
   QHash<int, ALNet<RoleData, RelData>::VerNode *> hashID;
+
   void readFile();
 
 private:
@@ -77,6 +82,7 @@ private:
   Role *selectedRole = nullptr;
   Rel *selectedRel = nullptr;
 
+  int SearchModelChoice = 0;
   int roleCnt = 0;
   void writeFile();
 };

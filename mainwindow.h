@@ -24,6 +24,6 @@ private slots:
 
 private:
   Ui::MainWindow *ui;
-  MyCanvas *canvas;
+  MyCanvas *canvas = nullptr;
 };
 #endif // MAINWINDOW_H

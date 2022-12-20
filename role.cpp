@@ -1,8 +1,9 @@
 #include "role.h"
 #include "graphview.h"
+#include <cmath>
 
 Role::Role(int id, GraphView *view, QString tname, QString imgPath)
-    : ID(id), view(view), imgPath(imgPath), color(BLUE), radius(30) {
+    : ID(id), view(view), imgPath(imgPath), color(BLUE), radius(20) {
   // 可选择、可移动
   setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
   setFlag(ItemSendsGeometryChanges);   // 打开通知
@@ -32,6 +33,9 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   QPen pen(Qt::NoPen);
   QBrush brush;
   brush.setStyle(Qt::SolidPattern);
+  prepareGeometryChange();
+  int degree = relList.size();
+  radius = 15 * log(degree + 1) / log(2) + 20;
   if (option->state & QStyle::State_Sunken) { // 设置按下时的颜色
     brush.setColor(color.darker(130));
   } else if (option->state & QStyle::State_Selected) { // 设置选中时的颜色
@@ -68,6 +72,9 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
       m_svgRender.render(painter,
                          QRectF(-radius, -radius, 2 * radius, 2 * radius));
     }
+    nameTag->setVisible(true);
+  } else {
+    nameTag->setVisible(false);
   }
 }
 
@@ -152,7 +159,7 @@ void Role::calculateForces() {
     xvel -= vec.x() / weight;
     yvel -= vec.y() / weight;
   }
-  // 为了规避数值精度的误差，我们只需强制力的总和在小于0.5时为0。
+  // 为了规避数值精度的误差，我们只需强制力的总和在小于1时为0。
   if (qAbs(xvel) < 1 && qAbs(yvel) < 1)
     xvel = yvel = 0;
 
@@ -182,14 +189,18 @@ void Role::setImgPath(QString path) {
 }
 void Role::addRel(Rel *rel) {
   relList << rel;
+  update();
+  view->itemMoved();
   rel->adjust();
 }
 
 QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
   switch (change) {
   case ItemPositionHasChanged:
-    foreach (Rel *rel, relList)
+    foreach (Rel *rel, relList) {
       rel->adjust();
+      rel->drawText();
+    }
     view->itemMoved();
     break;
   default:
@@ -199,11 +210,10 @@ QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
 }
 
 void Role::removeThis() {
-  foreach (Rel *rel, relList) {
-    rel->removeThis();
-  }
+  foreach (Rel *rel, relList) { rel->removeThis(); }
   this->relList.clear();
   scene()->removeItem(this);
+  view->itemMoved();
 }
 
 void Role::removeRel(Rel *rel) {
@@ -213,4 +223,5 @@ void Role::removeRel(Rel *rel) {
       break;
     }
   }
+  view->itemMoved();
 }

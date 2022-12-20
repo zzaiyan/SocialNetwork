@@ -7,7 +7,6 @@ MainWindow::MainWindow(QWidget *parent)
   //设置窗口标题和大小
   this->setWindowTitle("基于社交网络的人物关系分析");
   this->setFixedSize(500, 400);
-  canvas = new MyCanvas;
 }
 
 MainWindow::~MainWindow() {
@@ -16,14 +15,18 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::on_createNew_clicked() {
+  if (canvas != nullptr)
+    delete canvas;
+  canvas = new MyCanvas;
   canvas->setWindowModality(Qt::ApplicationModal);
-  canvas->clear();
   canvas->show();
 }
 
 void MainWindow::on_openFile_clicked() {
+  if (canvas != nullptr)
+    delete canvas;
+  canvas = new MyCanvas;
   canvas->setWindowModality(Qt::ApplicationModal);
-  canvas->clear();
   canvas->show();
   //  QString OpenFile;
   //  // 打开文件夹中的csv文件

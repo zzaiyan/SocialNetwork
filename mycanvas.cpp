@@ -8,8 +8,8 @@
 #define ROLE_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\id0.csv"
 #define REL_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\data0.csv"
 #else
-#define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id.csv"
-#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data.csv"
+#define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id0.csv"
+#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data0.csv"
 #endif
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
@@ -87,11 +87,12 @@ void MyCanvas::on_addRole_clicked() {
 
   auto viewSize = view->size();
   // 每次添加人物的位置都保证在视图的中心点处
-  newRole->setPos(
-      view->mapToScene(viewSize.width() / 2, viewSize.height() / 2));
+  int delta = scene->items().size() & 1;
+  newRole->setPos(view->mapToScene(viewSize.width() / 2 + delta,
+                                   viewSize.height() / 2 + delta));
 
   // net中添加结点
-  auto ver = net.addVer({newRole->ID, newRole->name});
+  auto ver = net.addVer({newRole->ID, newRole->name, newRole});
   // 哈希表记录
   hashID.insert(newRole->ID, ver);
   hashName.insert(newRole->name, ver);
@@ -181,17 +182,19 @@ void MyCanvas::shuffle() {
                    p.y() + QRandomGenerator::global()->bounded(100));
   }
 }
-// 清空场景
+
 void MyCanvas::clear() {
+  // 清空场景
   QList<QGraphicsItem *> all = scene->items();
-  foreach (QGraphicsItem *item, all) {
-    scene->removeItem(item);
-  }
+  foreach (QGraphicsItem *item, all) { scene->removeItem(item); }
+  //清空数据结构
+  net.clear();
+  hashName.clear();
+  hashID.clear();
+  roleCnt &= 0;
 }
 
 void MyCanvas::readFile() {
-  hashName.clear();
-  //  names.clear();
   std::ifstream ifs;
 
   ifs.open(ROLE_FILE, std::ios::in);
@@ -299,3 +302,31 @@ void MyCanvas::on_redBtn_clicked() { setColor(2); }
 void MyCanvas::on_purpleBtn_clicked() { setColor(3); }
 
 void MyCanvas::on_yellowBtn_clicked() { setColor(4); }
+
+void MyCanvas::on_comboBox_currentIndexChanged(int index) {
+  SearchModelChoice = index;
+  return;
+}
+
+void MyCanvas::on_queryButton_clicked() {
+  QString queryText = ui->queryEdit->text();
+  ALNet<RoleData, RelData>::VerNode *ver = nullptr;
+  switch (SearchModelChoice) {
+  case 0: //按ID查询
+    if (hashID.contains(queryText.toInt()))
+      ver = hashID[queryText.toInt()];
+    break;
+  case 1: //按姓名查询
+    if (hashName.contains(queryText))
+      ver = hashName[queryText];
+    break;
+  default:
+    break;
+  };
+  if (ver != nullptr) {
+    Role *role = ver->_data.item;
+    view->centerOn(role);
+    scene->clearSelection();
+    role->setSelected(true);
+  }
+}

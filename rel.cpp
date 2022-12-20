@@ -2,27 +2,27 @@
 
 Rel::Rel(Role *startRole, Role *endRole)
     : start(startRole), end(endRole), text(""), arrowSize(15), color(BLUE) {
-  start->addRel(this);
-  end->addRel(this);
-  relTag = new QGraphicsTextItem;
-  relTag->setParentItem(this);
-  relTag->setFlag(QGraphicsItem::ItemIsSelectable);
-  setZValue(-1000);
+  init();
   adjust();
 }
 
 Rel::Rel(Role *startRole, Role *endRole, int c, QString text)
     : start(startRole), end(endRole), text(text), arrowSize(15) {
-  start->addRel(this);
-  end->addRel(this);
-  relTag = new QGraphicsTextItem;
-  relTag->setParentItem(this);
-  relTag->setFlag(QGraphicsItem::ItemIsSelectable);
-  setZValue(-1000);
   setColor(c);
+  init();
   adjust();
 }
 
+void Rel::init() {
+  start->addRel(this);
+  end->addRel(this);
+  setZValue(-1000);
+  relTag = new QGraphicsTextItem;
+  relTag->setParentItem(this);
+  relTag->setFlag(QGraphicsItem::ItemIsSelectable);
+  relTag->setFont(tagFont);
+  relTag->setZValue(this->zValue());
+}
 void Rel::adjust() {
   if (!start || !end || isRemoved)
     return;
@@ -30,9 +30,13 @@ void Rel::adjust() {
   qreal length = line.length();
   prepareGeometryChange();
   if (length > qreal(80.)) {
-    QPointF edgeOffset((line.dx() * 30) / length, (line.dy() * 30) / length);
-    startPoint = line.p1() + edgeOffset;
-    endPoint = line.p2() - edgeOffset;
+    //计算箭头偏移量
+    QPointF edgeOffset1((line.dx() * startRole()->getRadius()) / length,
+                        (line.dy() * startRole()->getRadius()) / length),
+        edgeOffset2((line.dx() * endRole()->getRadius()) / length,
+                    (line.dy() * endRole()->getRadius()) / length);
+    startPoint = line.p1() + edgeOffset1;
+    endPoint = line.p2() - edgeOffset2;
   } else {
     startPoint = endPoint = line.p1();
   }
@@ -58,6 +62,7 @@ void Rel::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   QLineF line(startPoint, endPoint);
   if (qFuzzyCompare(line.length(), qreal(0.)))
     return;
+  prepareGeometryChange();
   painter->setPen(QPen(color, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
   painter->setBrush(color);
   // Draw the line itself
@@ -77,24 +82,31 @@ void Rel::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                          cos(angle - M_PI + M_PI / 3) * arrowSize);
 
   painter->drawPolygon(QPolygonF() << line.p2() << endArrowP1 << endArrowP2);
-  // Draw the text
+  const qreal lod =
+      option->levelOfDetailFromTransform(painter->worldTransform());
+  if (lod > 0.5) {
+    // Draw the text
+    relTag->setVisible(true);
+    drawText();
+  } else {
+    relTag->setVisible(false);
+  }
+}
+void Rel::drawText() {
   if (!text.isEmpty()) {
+    // relTag->setRotation(-line.angle());
+    relTag->setDefaultTextColor(color.darker(150));
+    relTag->setHtml("<div style = 'background-color:rgba(255,255,255,150);' >" +
+                    text + "</div>");
+    relTag->adjustSize();
     center = (start->scenePos() + start->boundingRect().center() +
               end->scenePos() + end->boundingRect().center()) /
              2;
-    relTag->setFont(tagFont);
-    relTag->adjustSize();
-    relTag->setZValue(this->zValue());
-    relTag->setDefaultTextColor(color.darker(150));
     relTag->setPos(center - QPointF(relTag->boundingRect().width(),
                                     relTag->boundingRect().height()) /
                                 2);
-    relTag->setHtml("<div style='background-color:rgba(255,255,255,150);'>" +
-                    text + "</div>");
-    // relTag->setRotation(-line.angle());
   }
 }
-
 void Rel::setColor(int c) {
   switch (c) {
   case 1:

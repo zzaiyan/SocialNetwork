@@ -16,12 +16,17 @@ public:
   QString text;
   Rel(Role *startRole, Role *endRole);
   Rel(Role *startRole, Role *endRole, int c, QString text = "");
+  void init();
   void adjust();
   void setColor(int c);
   void removeThis();
   //  RelData *data;
   //  void setData(RelData *p) { data = p; }
-  void setText(QString t) { text = t; }
+  void setText(QString t) {
+    text = t;
+    adjust();
+  }
+  void drawText();
   Role *startRole() { return start; }
   Role *endRole() { return end; }
 

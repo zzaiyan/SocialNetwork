@@ -28,6 +28,9 @@ QLineEdit{
     background-color: white;
     border: 0px solid #008cba;
 }
+QLineEdit#queryEdit{
+   border: 1px solid #BEBFC2;
+}
 QPlainTextEdit{
    color: #69788F;
 	padding:5px;
@@ -53,6 +56,19 @@ QLabel#imgLabel{
 QGraphicsView{
 	border: 1px solid #BEBFC2;
 	border-radius: 2px;
+}
+QCheckBox::indicator {
+        width: 25px;
+        height: 25px;
+}
+QCheckBox::indicator:enabled:unchecked {
+        image: url(:/icon/checkbox0.svg);
+}
+QCheckBox::indicator:enabled:checked {
+        image: url(:/icon/checkbox1.svg);
+}
+QPushButton#queryButton{
+	border-radius: 0px;	
 }
 QPushButton#addRole,#exportImg,#debugButton{
 	background-color: rgba(255,255,255,100);
@@ -177,6 +193,102 @@ QPushButton#yellowBtn:hover{
        </property>
        <property name="text">
         <string>输出图的结构</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBox">
+       <property name="minimumSize">
+        <size>
+         <width>110</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>按ID查询</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>按姓名查询</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="queryEdit">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="queryButton">
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>查询</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBox">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>力导向分布优化</string>
+       </property>
+       <property name="icon">
+        <iconset theme="accessories-dictionary"/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
        </property>
       </widget>
      </item>

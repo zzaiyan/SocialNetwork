@@ -35,7 +35,7 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   brush.setStyle(Qt::SolidPattern);
   prepareGeometryChange();
   int degree = relList.size();
-  radius = 15 * log(degree + 1) / log(2) + 20;
+  radius = 12 * log(degree + 1) / log(3) + 20;
   if (option->state & QStyle::State_Sunken) { // 设置按下时的颜色
     brush.setColor(color.darker(130));
   } else if (option->state & QStyle::State_Selected) { // 设置选中时的颜色
@@ -133,8 +133,9 @@ void Role::calculateForces() {
     // 力为每个节点累积，然后进行调整，以便为最近的节点提供最强的力，当距离增加时会迅速退化。
     double l = 2.0 * (dx * dx + dy * dy);
     if (l > 0) {
-      xvel += (dx * 2000.0) / l;
-      yvel += (dy * 2000.0) / l;
+      int degree = relList.size();
+      xvel += ((dx + log(degree + 1) * 10) * 2000.0) / l;
+      yvel += ((dy + log(degree + 1) * 10) * 2000.0) / l;
     }
   }
   // 假设所有节点与画布中心点都有一条看不见的弹性绳

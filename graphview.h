@@ -19,6 +19,7 @@ class GraphView : public QGraphicsView {
 public:
   explicit GraphView(MyCanvas *p, QWidget *parent = nullptr);
   void itemMoved();
+  int mode = 0; //是否使用力导向分布算法，默认不使用
 public slots:
 protected:
   MyCanvas *canvas;

@@ -26,7 +26,7 @@ void GraphView::itemMoved() {
 //计时器事件处理程序的工作是将整个力计算机制作为平滑动画运行。
 void GraphView::timerEvent(QTimerEvent *event) {
   Q_UNUSED(event);
-  if (0) {
+  if (mode) {
     //计算所有节点受到的力
     QVector<Role *> roles;
     const QList<QGraphicsItem *> items = scene()->items();
@@ -105,8 +105,8 @@ void GraphView::mouseReleaseEvent(QMouseEvent *mouseEvent) {
       if (!canvas->net.haveArc(ver1, ver2) &&
           !canvas->net.haveArc(ver2, ver1)) {
         auto rel = new Rel(startItem, endItem);
-        rel->setText("newRelation");
-        canvas->addNetArc(startItem->name, endItem->name, "newRelation");
+        rel->setText("newRel");
+        canvas->addNetArc(startItem->name, endItem->name, "newRel");
         qDebug() << startItem->name << endItem->name;
         scene()->addItem(rel);
         rel->adjust();

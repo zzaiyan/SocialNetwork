@@ -59,6 +59,8 @@ private slots:
 
   void on_comboBox_currentIndexChanged(int index);
 
+  void on_checkBox_stateChanged(int arg1);
+
 public: // from Zzaiyan
   void setRelData(int ID1, int ID2, const RelData &e);
   RelData *addNetArc(const QString &name1, const QString &name2,

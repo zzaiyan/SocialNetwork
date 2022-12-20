@@ -46,6 +46,7 @@ public:
   list<ArcNode> &rAdj(int id) {
     return vers[id]->_rAdj; // 获取逆邻接表
   }
+  const auto &getVers() { return vers; }
 
 public:
   ALNet(const int s = 0) {

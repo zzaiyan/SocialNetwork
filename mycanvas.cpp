@@ -2,15 +2,8 @@
 #include "ui_mycanvas.h"
 #include <QDebug>
 
-// #define zzaiyan // 琪琪请注释该行
-
-#ifdef zzaiyan
-#define ROLE_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\id0.csv"
-#define REL_FILE "C:\\Users\\1\\Desktop\\SocialNetworkAnalist\\data\\data0.csv"
-#else
-#define ROLE_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\id0.csv"
-#define REL_FILE "D:\\QTproject\\SocialNetworkAnalist\\data\\data0.csv"
-#endif
+#define ROLE_FILE "../SocialNetworkAnalist/data/id0.csv"
+#define REL_FILE "../SocialNetworkAnalist/data/data0.csv"
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);
@@ -260,6 +253,11 @@ void MyCanvas::readFile() {
 void MyCanvas::writeFile() {
   std::ofstream ofs;
   ofs.open(ROLE_FILE, std::ios::out);
+
+  auto &vers = net.getVers();
+  QString buf;
+  for (int i = 0; i < vers.size(); i++) {
+  }
 }
 
 void MyCanvas::setRelData(int ID1, int ID2, const RelData &e) {
@@ -328,5 +326,13 @@ void MyCanvas::on_queryButton_clicked() {
     view->centerOn(role);
     scene->clearSelection();
     role->setSelected(true);
+  }
+}
+
+void MyCanvas::on_checkBox_stateChanged(int arg1) {
+  if (arg1 == 0) {
+    view->mode = 0;
+  } else if (arg1 == 2) {
+    view->mode = 1;
   }
 }

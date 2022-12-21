@@ -201,8 +201,7 @@ void Role::addRel(Rel *rel) {
   radius = 12 * log(degree + 1) / log(3) + 20;
   update();
   view->itemMoved();
-  rel->adjust();
-  rel->update();
+  foreach (Rel *rel, relList) { rel->adjust(); }
 }
 
 QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {

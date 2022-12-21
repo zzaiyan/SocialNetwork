@@ -12,6 +12,7 @@
 #include <QGraphicsScene>
 #include <QHash>
 #include <QImage>
+#include <QTextCodec>
 #include <QWidget>
 #include <cstring>
 #include <fstream>
@@ -88,6 +89,9 @@ private:
 
   int SearchModelChoice = 0;
   int roleCnt = 0;
+  //自动识别文件编码
+  QString FileCharacterEncoding(const QString &fileName);
+  QString codec;
 };
 
 #endif // MYCANVAS_H

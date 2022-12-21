@@ -36,7 +36,7 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   brush.setStyle(Qt::SolidPattern);
   prepareGeometryChange();
   int degree = relList.size();
-  radius = 12 * log(degree + 1) / log(3) + 20;
+  radius = 20 * log(degree + 1) + 20;
   if (option->state & QStyle::State_Sunken) { // 设置按下时的颜色
     brush.setColor(color.darker(130));
   } else if (option->state & QStyle::State_Selected) { // 设置选中时的颜色

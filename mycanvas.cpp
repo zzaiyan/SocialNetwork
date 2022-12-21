@@ -1,10 +1,11 @@
 #include "mycanvas.h"
 #include "ui_mycanvas.h"
 #include <QDebug>
+#include <QFile>
 
 //#define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
 //#define REL_FILE "../SocialNetworkAnalist/data/data.csv"
-#define DATA_FILE "../SocialNetworkAnalist/data.csv"
+#define DATA_FILE "../SocialNetworkAnalist/data1.csv"
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   ui->setupUi(this);
@@ -154,6 +155,8 @@ void MyCanvas::on_openFile_clicked() {
     if (image.load(OpenFile)) {
       ui->imgLabel->setPixmap(QPixmap::fromImage(image));
       selectedRole->setImgPath(OpenFile);
+      auto ver = hashName[selectedRole->name];
+      ver->_data.imgPath = OpenFile;
     }
   }
 }
@@ -199,60 +202,62 @@ void MyCanvas::clear() {
 }
 
 void MyCanvas::readFile() {
-  std::ifstream ifs;
+  QString fileName = QFileDialog::getOpenFileName(
+      this, tr("Excel file"), qApp->applicationDirPath(), tr("Files (*.csv)"));
+  QFile inFile(fileName);
 
-  ifs.open(DATA_FILE, std::ios::in);
-  if (!ifs) {
+  if (!inFile.open(QIODevice::ReadOnly)) {
     qDebug() << "DATA_FILE read error!";
     exit(1);
   }
-
-  std::string lineBuf;
+  QStringList list; //读取每一行的内容
+  QTextStream in(&inFile);
+  codec = FileCharacterEncoding(fileName);
+  in.setCodec(codec.toLocal8Bit()); //这行的目的是支持读取中文信息
+  qDebug() << codec;
   int lineCnt = 0, verNum, arcNum;
-  { // Code Scope : avoid name conflict
-    std::getline(ifs, lineBuf);
-    auto buf = QString(lineBuf.data());
-    auto li = buf.split(',');
-    auto it = li.begin();
-
+  {
+    // Code Scope : avoid name conflict
+    QString fileLine = in.readLine();
+    list = fileLine.split(","); //根据","开分隔开每行的列
+    auto it = list.begin();
     verNum = (*it++).toInt();
     arcNum = (*it++).toInt();
     auto x = (*it++).toDouble();
     auto y = (*it++).toDouble();
-
     scene->setSceneRect(-x / 2, -y / 2, x, y);
   }
-  while (lineCnt < verNum && std::getline(ifs, lineBuf)) {
-    auto buf = QString::fromLocal8Bit(lineBuf.data());
-    auto li = buf.split(',');
-    auto it = li.begin();
 
+  while (lineCnt < verNum) {
+    QString fileLine = in.readLine();
+    list = fileLine.split(","); //根据","开分隔开每行的列
+    auto it = list.begin();
     auto name = *it++;
     auto color = (*it++).toInt();
     auto pos_x = (*it++).toDouble();
     auto pos_y = (*it++).toDouble();
     auto path = *it++;
-    if (path.size() <= 2)
+    if (path == "null")
       path = "";
 
     int ID = ++lineCnt; // ID: 1~n
 
     // 建立Role
-    auto roleItem = new Role(ID, view, name);
+    auto roleItem = new Role(ID, view, name, path);
     roleItem->setColor(color);
 
     //  加入场景
-    QTimer::singleShot(1, [this, roleItem]() { scene->addItem(roleItem); });
+    scene->addItem(roleItem);
     // setPosition
     roleItem->setPos(pos_x, pos_y);
-    // qDebug() << pos_x << " " << pos_y;
+    qDebug() << pos_x << " " << pos_y;
     //  here does not effect;
 
     // 建立顶点，绑定Role
     auto ver = net.addVer({ID, name, roleItem, color, path});
     //    ver->_data.color = color;
 
-    // qDebug() << QString("%1 -> %2").arg(name).arg(ID);
+    qDebug() << QString("%1 -> %2").arg(name).arg(ID);
 
     ver->_data.setItem(roleItem);
 
@@ -263,10 +268,10 @@ void MyCanvas::readFile() {
 
   lineCnt = 0; // reset counter
 
-  while (lineCnt < arcNum && getline(ifs, lineBuf)) {
-    auto buf = QString::fromLocal8Bit(lineBuf.data());
-    auto li = buf.split(',');
-    auto it = li.begin();
+  while (lineCnt < arcNum && !in.atEnd()) {
+    QString fileLine = in.readLine();
+    list = fileLine.split(","); //根据","开分隔开每行的列
+    auto it = list.begin();
 
     auto ver1 = hashName[*it++];
     auto ver2 = hashName[*it++];
@@ -283,38 +288,46 @@ void MyCanvas::readFile() {
     // 在net中生成边
     net.addArc(ver1, ver2, {label, color});
   }
-  shuffle();
-  ifs.close();
+  //    shuffle();
+  inFile.close();
 
   qDebug() << "文件读取完成!";
 }
 
 void MyCanvas::writeFile() {
-  std::ofstream ofs;
-  ofs.open(DATA_FILE, std::ios::out);
-
+  QString fileName = QFileDialog::getOpenFileName(
+      this, tr("Excel file"), qApp->applicationDirPath(), tr("Files (*.csv)"));
+  QFile file(fileName);
+  QTextStream in(&file);
+  //  in.setCodec("GBK"); //这行的目的是支持读取中文信息
+  if (!file.open(QIODevice::WriteOnly)) {
+    qDebug() << "Write file error!";
+    exit(1);
+  }
   auto &vers = net.getVers();
   int verNum = vers.size(), arcNum = 0;
 
   for (int i = 0; i < verNum; i++) {
     arcNum += vers[i]->_Adj.size();
   }
-  auto buf = QString("%1,%2,%3,%4")
-                 .arg(verNum)
-                 .arg(arcNum)
-                 .arg(scene->itemsBoundingRect().width())
-                 .arg(scene->itemsBoundingRect().height());
-  ofs << buf.toStdString() << "\n"; // verNum and arcNum
+  QString buf = QString("%1,%2,%3,%4")
+                    .arg(verNum)
+                    .arg(arcNum)
+                    .arg(scene->itemsBoundingRect().width())
+                    .arg(scene->itemsBoundingRect().height());
+  in << buf << '\n';
 
   for (int i = 0; i < verNum; i++) { // for Vers
     auto &data = vers[i]->_data;
+    QString imgPath = data.imgPath.isEmpty() ? "null" : data.imgPath;
     buf = QString("%1,%2,%3,%4,%5")
               .arg(data.name)
               .arg(data.color)
               .arg(data.item->scenePos().x())
               .arg(data.item->scenePos().y())
-              .arg(data.imgPath);
-    ofs << buf.toStdString() << "\n";
+              .arg(imgPath);
+
+    in << buf << '\n';
   }
 
   for (int i = 0; i < verNum; i++) {
@@ -325,10 +338,10 @@ void MyCanvas::writeFile() {
                 .arg(ver.to->_data.name)
                 .arg(ver._data.label)
                 .arg(ver._data.color);
-      ofs << buf.toStdString() << "\n";
+      in << buf << '\n';
     }
   }
-  ofs.close();
+  file.close();
 }
 
 void MyCanvas::setRelData(int ID1, int ID2, const RelData &e) {
@@ -410,4 +423,23 @@ void MyCanvas::on_checkBox_stateChanged(int arg1) {
 }
 void MyCanvas::setZoomText() {
   ui->zoomLabel->setText(QString("缩放比例：%1%").arg(int(view->zoom * 100)));
+}
+QString MyCanvas::FileCharacterEncoding(const QString &fileName) {
+  //假定默认编码utf8
+  QString code = "UTF-8";
+
+  QFile file(fileName);
+  if (file.open(QIODevice::ReadOnly)) {
+    //读取3字节用于判断
+    QByteArray buffer = file.read(30);
+    //尝试用utf8转换,如果无效字符数大于0,则表示是ansi编码
+    QTextCodec::ConverterState cs;
+    QTextCodec *tc = QTextCodec::codecForName("UTF-8");
+    tc->toUnicode(buffer.constData(), buffer.size(), &cs);
+    code = (cs.invalidChars > 0) ? "ANSI" : "UTF-8";
+
+    file.close();
+  }
+
+  return code;
 }

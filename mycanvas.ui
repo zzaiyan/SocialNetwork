@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>800</height>
+    <width>1400</width>
+    <height>900</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@ QLineEdit{
     background-color: white;
     border: 0px solid #008cba;
 }
-QLineEdit#queryEdit{
+QLineEdit#queryEdit,#role1Edit,#role2Edit{
    border: 1px solid #BEBFC2;
 }
 QPlainTextEdit{
@@ -67,16 +67,16 @@ QCheckBox::indicator:enabled:unchecked {
 QCheckBox::indicator:enabled:checked {
         image: url(:/icon/checkbox1.svg);
 }
-QPushButton#queryButton{
+QPushButton#queryButton1,#queryButton2{
 	border-radius: 0px;	
 }
-QPushButton#addRole,#exportImg,#debugButton{
+QPushButton#addRole,#exportImg,#debugButton,#resetCanvas{
 	background-color: rgba(255,255,255,100);
 	border:1px solid #60a2dc;
 	color:#2e84cf;
 	border-radius: 5px;
 }
-QPushButton#addRole:hover,#exportImg:hover,#debugButton:hover{
+QPushButton#addRole:hover,#exportImg:hover,#debugButton:hover,#resetCanvas:hover{
 	background-color: #D7EAFB;
 	color: #158EF2;
 }
@@ -89,6 +89,65 @@ QPushButton#deleteItem{
 QPushButton#deleteItem:hover{
 	background-color: #FBD7D7;
 }
+QTabWidget::pane{
+	background-color: white;
+	border:0px solid white;
+	font:13pt '微软雅黑';
+}
+QTabBar::tab{
+    color: #69788F;
+	padding: 2px;
+	margin: 0 20px; 
+	background-color: white;
+}
+QTabBar::tab:selected{
+    color: #2196F3;
+	border-bottom: 2px solid #2196F3;
+}
+QTabWidget::pane{
+	border-top: 1px solid #DADBDC;
+}
+ QComboBox{
+	padding-left: 10px;
+    color: #444;
+    background-color: white;
+    border: 1px solid #BEBFC2;
+	border-radius: 5px;
+}
+ QComboBox:hover{
+	background: #f6f6f6;
+}
+/* 下拉后，整个下拉窗体样式 */
+QComboBox QAbstractItemView {
+    outline: 0px solid gray;   /* 选定项的虚框 */
+    border: 1px solid  #BEBFC2;  /* 整个下拉窗体的边框 */
+    color:  #444;
+    background-color: white;  /* 整个下拉窗体的背景色 */
+	selection-color: #2196F3;
+    selection-background-color: #D7EAFB;  /* 整个下拉窗体被选中项的背景色 */
+}
+/*下拉按钮样式*/
+QComboBox::drop-down {
+	width:20px; 
+	border: 0;
+	padding: 5px;
+} 
+QComboBox QAbstractItemView::item { 
+	height: 40px;
+	font-size: 10px;
+}
+
+QComboBox QAbstractItemView::item:hover {
+	background-color: #D7EAFB;
+	color: #158EF2;
+}
+/*下拉箭头样式*/
+QComboBox::down-arrow { 
+	width: 20px;
+	height: 20px;
+	color: #BEBFC2;
+	border-image: url(:/icon/004.ico);
+;}
 QPushButton#blueBtn{
 	background-color: #73A5D2;
 }
@@ -197,11 +256,11 @@ QPushButton#yellowBtn:hover{
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QPushButton" name="resetCanvas">
        <property name="minimumSize">
         <size>
-         <width>110</width>
-         <height>40</height>
+         <width>125</width>
+         <height>50</height>
         </size>
        </property>
        <property name="font">
@@ -210,59 +269,10 @@ QPushButton#yellowBtn:hover{
          <pointsize>10</pointsize>
         </font>
        </property>
-       <item>
-        <property name="text">
-         <string>按ID查询</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>按姓名查询</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <property name="spacing">
-        <number>0</number>
+       <property name="text">
+        <string>清空画布</string>
        </property>
-       <item>
-        <widget class="QLineEdit" name="queryEdit">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Microsoft YaHei</family>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="queryButton">
-         <property name="minimumSize">
-          <size>
-           <width>80</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Microsoft YaHei</family>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>查询</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="checkBox">
@@ -305,7 +315,7 @@ QPushButton#yellowBtn:hover{
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,3">
+    <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0">
      <property name="spacing">
       <number>15</number>
      </property>
@@ -375,10 +385,207 @@ padding: 5px;</string>
          <height>16777215</height>
         </size>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="7,0,3,1,1">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,7,0,3,1">
         <property name="spacing">
          <number>15</number>
         </property>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="spacing">
+           <number>5</number>
+          </property>
+          <item>
+           <widget class="QComboBox" name="comboBox">
+            <property name="minimumSize">
+             <size>
+              <width>110</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Microsoft YaHei</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <item>
+             <property name="text">
+              <string>按姓名查询</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>按ID查询</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTabWidget" name="tabWidget">
+            <property name="font">
+             <font>
+              <family>Microsoft YaHei</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="tab">
+             <attribute name="title">
+              <string>Tab 1</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <property name="leftMargin">
+               <number>5</number>
+              </property>
+              <property name="rightMargin">
+               <number>5</number>
+              </property>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLineEdit" name="queryEdit">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Microsoft YaHei</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="queryButton1">
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Microsoft YaHei</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>查询</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_2">
+             <attribute name="title">
+              <string>Tab 2</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_8">
+              <property name="spacing">
+               <number>5</number>
+              </property>
+              <property name="leftMargin">
+               <number>5</number>
+              </property>
+              <property name="rightMargin">
+               <number>5</number>
+              </property>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLineEdit" name="role1Edit">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Microsoft YaHei</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Microsoft YaHei</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>和</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="role2Edit">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Microsoft YaHei</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="queryButton2">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Microsoft YaHei</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>查询</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <property name="spacing">
@@ -388,7 +595,7 @@ padding: 5px;</string>
            <number>20</number>
           </property>
           <property name="topMargin">
-           <number>20</number>
+           <number>0</number>
           </property>
           <property name="rightMargin">
            <number>20</number>
@@ -609,64 +816,6 @@ text-align: center;</string>
             </property>
             <property name="text">
              <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_7">
-          <property name="spacing">
-           <number>10</number>
-          </property>
-          <property name="leftMargin">
-           <number>5</number>
-          </property>
-          <property name="topMargin">
-           <number>5</number>
-          </property>
-          <property name="rightMargin">
-           <number>5</number>
-          </property>
-          <property name="bottomMargin">
-           <number>5</number>
-          </property>
-          <item>
-           <widget class="QPushButton" name="pushButton">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>PushButton</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_2">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>PushButton</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_3">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>PushButton</string>
             </property>
            </widget>
           </item>

@@ -131,7 +131,7 @@ void Role::calculateForces() {
     qreal dx = vec.x();
     qreal dy = vec.y();
     // 力为每个节点累积，然后进行调整，以便为最近的节点提供最强的力，当距离增加时会迅速退化。
-    double l = 2.0 * (dx * dx + dy * dy);
+    double l = dx * dx + dy * dy;
     if (l > 0) {
       //      int degree = relList.size();
       xvel += (dx * 2000.0) / l;
@@ -144,8 +144,8 @@ void Role::calculateForces() {
   qreal dx = vec.x();
   qreal dy = vec.y();
   // qDebug() << vec.x() << " " << vec.y();
-  xvel -= dx / 50;
-  yvel -= dy / 50;
+  xvel -= dx / 30;
+  yvel -= dy / 30;
 
   // 有关联的节点通过连线相连，并且相互靠拢
   //  减去将节点拉在一起的力
@@ -162,7 +162,7 @@ void Role::calculateForces() {
     else
       vec = mapToItem(start, 0, 0);
     auto edgeDis = std::max(0.0, dis - start->getRadius() - end->getRadius());
-    auto rate = edgeDis / dis;
+    auto rate = edgeDis / dis * 3;
     xvel -= vec.x() * rate / weight;
     yvel -= vec.y() * rate / weight;
   }

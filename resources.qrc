@@ -9,5 +9,6 @@
         <file>icon/delete2.svg</file>
         <file>icon/checkbox0.svg</file>
         <file>icon/checkbox1.svg</file>
+        <file>icon/004.ico</file>
     </qresource>
 </RCC>

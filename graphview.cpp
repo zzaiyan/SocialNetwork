@@ -111,7 +111,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *mouseEvent) {
           !canvas->net.haveArc(ver2, ver1)) {
         auto rel = new Rel(startItem, endItem);
         rel->setText("newRel");
-        canvas->addNetArc(startItem->name, endItem->name, "newRel");
+        canvas->addNetArc(startItem->name, endItem->name, "newRel", rel);
         qDebug() << startItem->name << endItem->name;
         scene()->addItem(rel);
       }

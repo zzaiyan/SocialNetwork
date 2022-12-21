@@ -56,16 +56,20 @@ private slots:
 
   void on_debugButton_clicked();
 
-  void on_queryButton_clicked();
+  void on_queryButton1_clicked();
 
   void on_comboBox_currentIndexChanged(int index);
 
   void on_checkBox_stateChanged(int arg1);
 
+  void on_queryButton2_clicked();
+
+  void on_resetCanvas_clicked();
+
 public: // from Zzaiyan
   void setRelData(int ID1, int ID2, const RelData &e);
   RelData *addNetArc(const QString &name1, const QString &name2,
-                     const QString &label);
+                     const QString &label, Rel *item);
   void setColor(int c);
   void shuffle();
   void clear();

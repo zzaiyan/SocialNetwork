@@ -22,6 +22,10 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   view->setScene(scene);
   view->setMinimumWidth(400);
   ui->horizontalLayout_6->addWidget(view);
+  ui->comboBox->setView(new QListView());
+  ui->tabWidget->setTabText(0, "查询人物");
+  ui->tabWidget->setTabText(1, "查询关系");
+  // ui->tabWidget->setFont(QFont("微软雅黑",12));
   ui->imgLabel->setScaledContents(true);
   ui->openFile->setEnabled(false);
   connect(scene, SIGNAL(selectionChanged()), this, SLOT(repaint()));
@@ -274,6 +278,7 @@ void MyCanvas::readFile() {
     auto ver2 = hashName[*it++];
     auto label = *it++;
     auto color = (*it++).toInt();
+    auto cohesion = (*it++).toInt();
 
     qDebug() << QString("<%1, %2> = %3")
                     .arg(ver1->_data.name)
@@ -283,9 +288,9 @@ void MyCanvas::readFile() {
     auto relItem = new Rel(ver1->_data.item, ver2->_data.item, label, color);
     scene->addItem(relItem);
     // 在net中生成边
-    net.addArc(ver1, ver2, {label, color});
+    net.addArc(ver1, ver2, {label, color, relItem, cohesion});
   }
-  //    shuffle();
+  //  shuffle();
   inFile.close();
   scene->update();
   qDebug() << "文件读取完成!";
@@ -329,12 +334,13 @@ void MyCanvas::writeFile() {
 
   for (int i = 0; i < verNum; i++) {
     auto li = vers[i]->_Adj;
-    for (auto &&ver : li) {
-      buf = QString("%1,%2,%3,%4")
-                .arg(ver.from->_data.name)
-                .arg(ver.to->_data.name)
-                .arg(ver._data.label)
-                .arg(ver._data.color);
+    for (auto &&arc : li) {
+      buf = QString("%1,%2,%3,%4,%5")
+                .arg(arc.from->_data.name)
+                .arg(arc.to->_data.name)
+                .arg(arc._data.label)
+                .arg(arc._data.color)
+                .arg(arc._data.cohesion);
       in << buf << '\n';
     }
   }
@@ -349,10 +355,10 @@ void MyCanvas::setRelData(int ID1, int ID2, const RelData &e) {
 }
 
 RelData *MyCanvas::addNetArc(const QString &name1, const QString &name2,
-                             const QString &label) {
+                             const QString &label, Rel *item) {
   auto ver1 = hashName[name1];
   auto ver2 = hashName[name2];
-  auto relData = net.addArc(ver1, ver2, {label});
+  auto relData = net.addArc(ver1, ver2, {label, 1, item});
   return relData;
 }
 
@@ -388,17 +394,17 @@ void MyCanvas::on_comboBox_currentIndexChanged(int index) {
   return;
 }
 
-void MyCanvas::on_queryButton_clicked() {
+void MyCanvas::on_queryButton1_clicked() {
   QString queryText = ui->queryEdit->text();
   ALNet<RoleData, RelData>::VerNode *ver = nullptr;
   switch (SearchModelChoice) {
-  case 0: //按ID查询
-    if (hashID.contains(queryText.toInt()))
-      ver = hashID[queryText.toInt()];
-    break;
-  case 1: //按姓名查询
+  case 0: //按姓名查询
     if (hashName.contains(queryText))
       ver = hashName[queryText];
+    break;
+  case 1: //按ID查询
+    if (hashID.contains(queryText.toInt()))
+      ver = hashID[queryText.toInt()];
     break;
   default:
     break;
@@ -408,6 +414,39 @@ void MyCanvas::on_queryButton_clicked() {
     view->centerOn(role);
     scene->clearSelection();
     role->setSelected(true);
+  }
+}
+
+void MyCanvas::on_queryButton2_clicked() {
+  QString text1 = ui->role1Edit->text(), text2 = ui->role2Edit->text();
+  ALNet<RoleData, RelData>::VerNode *ver1 = nullptr, *ver2 = nullptr;
+  ALNet<RoleData, RelData>::ArcNode *arc;
+  switch (SearchModelChoice) {
+  case 0: //按姓名查询
+    if (hashName.contains(text1))
+      ver1 = hashName[text1];
+    if (hashName.contains(text2))
+      ver2 = hashName[text2];
+    break;
+  case 1: //按ID查询
+    if (hashID.contains(text1.toInt()))
+      ver1 = hashID[text1.toInt()];
+    if (hashID.contains(text2.toInt()))
+      ver2 = hashID[text1.toInt()];
+    break;
+  default:
+    break;
+  };
+  if (ver1 != nullptr && ver2 != nullptr) {
+    auto arc = net.getArc(ver1, ver2);
+    if (arc == nullptr)
+      arc = net.getArc(ver2, ver1);
+    if (arc != nullptr) {
+      auto tag = arc->_data.item->relTag;
+      view->centerOn(tag);
+      scene->clearSelection();
+      tag->setSelected(true);
+    }
   }
 }
 
@@ -440,3 +479,5 @@ QString MyCanvas::FileCharacterEncoding(const QString &fileName) {
 
   return code;
 }
+
+void MyCanvas::on_resetCanvas_clicked() { clear(); }

@@ -1,6 +1,6 @@
 #include "rel.h"
 
-Rel::Rel(Role* startRole, Role* endRole, QString text, int c)
+Rel::Rel(Role *startRole, Role *endRole, QString text, int c)
     : start(startRole), end(endRole), text(text), arrowSize(15) {
   setColor(c);
   init();
@@ -49,15 +49,13 @@ QRectF Rel::boundingRect() const {
       .adjusted(-extra, -extra, extra, extra);
 }
 
-void Rel::paint(QPainter* painter,
-                const QStyleOptionGraphicsItem* option,
-                QWidget*) {
+void Rel::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                QWidget *) {
   if (!start || !end || isRemoved)
     return;
   QLineF line(startPoint, endPoint);
   if (qFuzzyCompare(line.length(), qreal(0.)))
     return;
-  prepareGeometryChange();
   painter->setPen(QPen(color, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
   painter->setBrush(color);
   // Draw the line itself
@@ -109,18 +107,18 @@ void Rel::drawText() {
 }
 void Rel::setColor(int c) {
   switch (c) {
-    case 1:
-      color = BLUE;
-      break;
-    case 2:
-      color = RED;
-      break;
-    case 3:
-      color = PURPLE;
-      break;
-    case 4:
-      color = YELLOW;
-      break;
+  case 1:
+    color = BLUE;
+    break;
+  case 2:
+    color = RED;
+    break;
+  case 3:
+    color = PURPLE;
+    break;
+  case 4:
+    color = YELLOW;
+    break;
   }
   update();
 }

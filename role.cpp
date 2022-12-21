@@ -34,9 +34,7 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   QPen pen(Qt::NoPen);
   QBrush brush;
   brush.setStyle(Qt::SolidPattern);
-  prepareGeometryChange();
-  int degree = relList.size();
-  radius = 20 * log(degree + 1) + 20;
+  // prepareGeometryChange();
   if (option->state & QStyle::State_Sunken) { // 设置按下时的颜色
     brush.setColor(color.darker(130));
   } else if (option->state & QStyle::State_Selected) { // 设置选中时的颜色
@@ -204,6 +202,7 @@ void Role::addRel(Rel *rel) {
   update();
   view->itemMoved();
   rel->adjust();
+  rel->update();
 }
 
 QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {

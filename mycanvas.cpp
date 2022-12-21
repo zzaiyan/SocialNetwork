@@ -31,9 +31,6 @@ MyCanvas::~MyCanvas() {
   delete ui;
   delete scene;
   delete view;
-  delete selectedItem;
-  delete selectedRole;
-  delete selectedRel;
 }
 
 void MyCanvas::repaint() {
@@ -290,7 +287,7 @@ void MyCanvas::readFile() {
   }
   //    shuffle();
   inFile.close();
-
+  scene->update();
   qDebug() << "文件读取完成!";
 }
 
@@ -430,7 +427,7 @@ QString MyCanvas::FileCharacterEncoding(const QString &fileName) {
 
   QFile file(fileName);
   if (file.open(QIODevice::ReadOnly)) {
-    //读取3字节用于判断
+    //读取30字节用于判断
     QByteArray buffer = file.read(30);
     //尝试用utf8转换,如果无效字符数大于0,则表示是ansi编码
     QTextCodec::ConverterState cs;

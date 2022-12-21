@@ -47,6 +47,10 @@ public:
   list<ArcNode> &rAdj(int id) {
     return vers[id]->_rAdj; // 获取逆邻接表
   }
+
+  auto &Adj(VerNode *p) { return Adj(p->_pos); }
+  auto &rAdj(VerNode *p) { return rAdj(p->_pos); }
+
   auto &getVers() { return vers; } //获取顶点和邻接表，用于遍历
 
 public:
@@ -71,6 +75,7 @@ public:
       }
     return arc;
   }
+
   ArcNode *getArc(VerNode *a, VerNode *b) {
     if (a && b)
       return getArc(a->_pos, b->_pos);
@@ -150,17 +155,15 @@ public:
     //    ArcData ret;
     auto it1 = Adj(a).begin();
     auto it2 = rAdj(b).begin();
+
     for (; it1 != Adj(a).end(); it1++)
-      if (it1->to->_pos == b) {
-        //        ret = it1->_data;
+      if (it1->to->_pos == b)
         break;
-      }
+
     for (; it2 != rAdj(b).end(); it2++)
       if (it2->to->_pos == a)
         break;
-    //    qDebug() << QString("delete <%1,%2>.")
-    //                    .arg(vers[a]->_data.name)
-    //                    .arg(vers[b]->_data.name);
+
     Adj(a).erase(it1);
     rAdj(b).erase(it2);
     return true;
@@ -188,7 +191,7 @@ public:
         que.pop();
       }
     }
-    // 然后删除顶点以及邻接表（发出的边）
+    // 然后删除顶点以及邻接表
     delete vers[id];
     for (int i = id + 1; i < vers.size(); i++) {
       vers[i]->_pos--;
@@ -203,6 +206,8 @@ public:
     else
       qDebug() << "Remove Ver ERROR!";
   }
+
+  // 以下函数依照项目特化
 
   void printVers() {
     for (int i = 0; i < vers.size(); i++) {
@@ -239,16 +244,6 @@ public:
       qDebug() << buf;
     }
   }
-  //  void calImpact() {
-  //    for (int i = 0; i < vers.size(); i++) {
-  //      for (auto &e : Adj(i)) {
-  //        vers[i]->_data.impact += e._data.cohesion * totalDegree(e.to);
-  //      }
-  //      for (auto &e : rAdj(i)) {
-  //        vers[i]->_data.impact += e._data.cohesion * totalDegree(e.from);
-  //      }
-  //    }
-  //  }
 };
 
 #endif // NET_H

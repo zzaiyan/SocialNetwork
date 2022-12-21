@@ -37,10 +37,10 @@ public:
   //  void setData(RoleData *p) { data = p; }
 
   int ID;
-  QString imgPath;
-  QString name;
-  QPointF newPos;
   GraphView *view;
+  QString name;
+  QString imgPath;
+  QPointF newPos;
 
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *event) override;

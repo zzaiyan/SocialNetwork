@@ -24,6 +24,8 @@ class MyCanvas;
 }
 
 class GraphView;
+struct RoleData;
+struct RelData;
 
 class MyCanvas : public QWidget {
   Q_OBJECT
@@ -93,6 +95,7 @@ private:
 
   int SearchModelChoice = 0;
   int roleCnt = 0;
+  int getImpact();
   //自动识别文件编码
   QString FileCharacterEncoding(const QString &fileName);
   QString codec;

@@ -40,13 +40,14 @@ private:
   }
 
 public:
+  // 这两个其实是语法糖
   list<ArcNode> &Adj(int id) {
     return vers[id]->_Adj; // 获取邻接表
   }
   list<ArcNode> &rAdj(int id) {
     return vers[id]->_rAdj; // 获取逆邻接表
   }
-  const auto &getVers() { return vers; }
+  auto &getVers() { return vers; } //获取顶点和邻接表，用于遍历
 
 public:
   ALNet(const int s = 0) {
@@ -101,6 +102,7 @@ public:
   int outDegree(int id) const { return Adj(id).size(); }
   int outDegree(VerNode *ver) const { return outDegree(ver->_pos); }
 
+  int totalDegree(int id) const { return inDegree(id) + outDegree(id); }
   int totalDegree(VerNode *ver) const { return inDegree(ver) + outDegree(ver); }
 
   // 尾插顶点并赋值
@@ -237,6 +239,16 @@ public:
       qDebug() << buf;
     }
   }
+  //  void calImpact() {
+  //    for (int i = 0; i < vers.size(); i++) {
+  //      for (auto &e : Adj(i)) {
+  //        vers[i]->_data.impact += e._data.cohesion * totalDegree(e.to);
+  //      }
+  //      for (auto &e : rAdj(i)) {
+  //        vers[i]->_data.impact += e._data.cohesion * totalDegree(e.from);
+  //      }
+  //    }
+  //  }
 };
 
 #endif // NET_H

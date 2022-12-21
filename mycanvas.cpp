@@ -2,6 +2,7 @@
 #include "ui_mycanvas.h"
 #include <QDebug>
 #include <QFile>
+#include <cmath>
 
 //#define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
 //#define REL_FILE "../SocialNetworkAnalist/data/data.csv"
@@ -43,13 +44,15 @@ void MyCanvas::repaint() {
     if (selectedItem->type() == Role::Type) { // 当前选中的是role
       selectedRel = nullptr;
       selectedRole = qgraphicsitem_cast<Role *>(selectedItem);
+      auto ver = hashName[selectedRole->name];
       QString imgPath = selectedRole->imgPath, name = selectedRole->name;
       QPixmap p(imgPath.isEmpty() ? ":/icon/role.svg" : imgPath);
       ui->imgLabel->setPixmap(p);
       ui->nameEdit->setText(name);
       ui->idLabel->setText("ID:" + QString::number(selectedRole->ID));
       ui->infoEdit->clear();
-      ui->infoEdit->appendPlainText("No description");
+      ui->infoEdit->appendPlainText(
+          QString("影响力：%1").arg(ver->_data.impact));
       ui->nameEdit->setReadOnly(false);
       ui->infoEdit->setReadOnly(false);
       ui->openFile->setEnabled(true);
@@ -291,6 +294,7 @@ void MyCanvas::readFile() {
     net.addArc(ver1, ver2, {label, color, relItem, cohesion});
   }
   //  shuffle();
+  getImpact();
   inFile.close();
   scene->update();
   qDebug() << "文件读取完成!";
@@ -345,6 +349,31 @@ void MyCanvas::writeFile() {
     }
   }
   file.close();
+}
+
+int MyCanvas::getImpact() {
+  auto vers = net.getVers();
+  // 获取邻接表指针
+  auto pAdj = [&](int id) { return &vers[id]->_Adj; };
+  auto prAdj = [&](int id) { return &vers[id]->_rAdj; };
+  // 由VerNode指针计算度数和
+  auto Degree = [&](decltype(vers)::value_type(p)) { //丑陋的类型声明
+    return pAdj(p->_pos)->size() + prAdj(p->_pos)->size();
+  };
+  // 数据优化函数
+  auto trans = [&](int &x) { x = sqrt(x); };
+
+  for (int i = 0; i < vers.size(); i++) {
+    for (auto &e : *pAdj(i))
+      vers[i]->_data.impact += e._data.cohesion * Degree(e.to);
+
+    for (auto &e : *prAdj(i))
+      vers[i]->_data.impact += e._data.cohesion * Degree(e.from);
+
+    trans(vers[i]->_data.impact);
+  }
+
+  return 666;
 }
 
 void MyCanvas::setRelData(int ID1, int ID2, const RelData &e) {

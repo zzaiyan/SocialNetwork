@@ -49,6 +49,9 @@ private:
   const QColor RED = QColor(216, 135, 133);
   const QColor PURPLE = QColor(164, 130, 210);
   const QColor YELLOW = QColor(208, 181, 117);
+  const QColor MAGENTA = QColor(215, 123, 167);
+  const QColor GREY = QColor(163, 163, 163);
+  const QColor GREEN = QColor(137, 191, 125);
   QColor color;
 };
 

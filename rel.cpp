@@ -119,6 +119,17 @@ void Rel::setColor(int c) {
   case 4:
     color = YELLOW;
     break;
+  case 5:
+    color = MAGENTA;
+    break;
+  case 6:
+    color = GREEN;
+    break;
+  case 7:
+    color = GREY;
+    break;
+  default:
+    break;
   }
   update();
 }

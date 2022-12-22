@@ -420,13 +420,6 @@ void MyCanvas::setColor(int c) {
     net.getArc(ver1, ver2)->_data.color = c;
   }
 }
-void MyCanvas::on_blueBtn_clicked() { setColor(1); }
-
-void MyCanvas::on_redBtn_clicked() { setColor(2); }
-
-void MyCanvas::on_purpleBtn_clicked() { setColor(3); }
-
-void MyCanvas::on_yellowBtn_clicked() { setColor(4); }
 
 void MyCanvas::on_comboBox_currentIndexChanged(int index) {
   SearchModelChoice = index;
@@ -520,3 +513,7 @@ QString MyCanvas::FileCharacterEncoding(const QString &fileName) {
 }
 
 void MyCanvas::on_resetCanvas_clicked() { clear(); }
+
+void MyCanvas::on_pushButton_clicked() {
+  setColor(ui->comboBox_2->currentIndex() + 1);
+}

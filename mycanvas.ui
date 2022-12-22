@@ -772,9 +772,9 @@ text-align: center;</string>
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,0,0">
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
           <property name="spacing">
-           <number>10</number>
+           <number>5</number>
           </property>
           <property name="leftMargin">
            <number>5</number>
@@ -796,54 +796,72 @@ text-align: center;</string>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="blueBtn">
+           <widget class="QComboBox" name="comboBox_2">
             <property name="minimumSize">
              <size>
-              <width>30</width>
-              <height>30</height>
+              <width>100</width>
+              <height>40</height>
              </size>
             </property>
-            <property name="text">
-             <string/>
+            <property name="font">
+             <font>
+              <family>Microsoft YaHei</family>
+              <pointsize>10</pointsize>
+             </font>
             </property>
+            <item>
+             <property name="text">
+              <string>蓝色</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>红色</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>紫色</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>黄色</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>洋红</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>绿色</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>灰色</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="redBtn">
+           <widget class="QPushButton" name="pushButton">
             <property name="minimumSize">
              <size>
-              <width>30</width>
-              <height>30</height>
+              <width>50</width>
+              <height>40</height>
              </size>
             </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="purpleBtn">
-            <property name="minimumSize">
-             <size>
-              <width>30</width>
-              <height>30</height>
-             </size>
+            <property name="font">
+             <font>
+              <family>Microsoft YaHei</family>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="yellowBtn">
-            <property name="minimumSize">
-             <size>
-              <width>30</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
+             <string>确定</string>
             </property>
            </widget>
           </item>

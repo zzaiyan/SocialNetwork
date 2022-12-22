@@ -50,7 +50,7 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
       option->levelOfDetailFromTransform(painter->worldTransform());
   if (lod > 0.3) {
     if (!imgPath.isEmpty()) {
-      qreal delta = 4;
+      qreal delta = radius / 8;
       brush.setColor(Qt::white);
       painter->setBrush(brush);
       painter->drawEllipse(QPointF(0, 0), radius - delta, radius - delta);
@@ -58,7 +58,7 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
       painter->setRenderHint(QPainter::Antialiasing);
       painter->setRenderHint(QPainter::SmoothPixmapTransform);
       QPainterPath path;
-      delta = 8;
+      delta = radius / 4;
       path.addEllipse(-(radius - delta), -(radius - delta),
                       2 * (radius - delta), 2 * (radius - delta));
       painter->setClipPath(path);
@@ -104,6 +104,17 @@ void Role::setColor(int c) {
     break;
   case 4:
     color = YELLOW;
+    break;
+  case 5:
+    color = MAGENTA;
+    break;
+  case 6:
+    color = GREEN;
+    break;
+  case 7:
+    color = GREY;
+    break;
+  default:
     break;
   }
   update();

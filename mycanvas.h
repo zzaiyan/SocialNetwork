@@ -42,14 +42,6 @@ private slots:
 
   void on_deleteItem_clicked();
 
-  void on_blueBtn_clicked();
-
-  void on_redBtn_clicked();
-
-  void on_purpleBtn_clicked();
-
-  void on_yellowBtn_clicked();
-
   void on_nameEdit_editingFinished();
 
   void on_openFile_clicked();
@@ -67,6 +59,8 @@ private slots:
   void on_queryButton2_clicked();
 
   void on_resetCanvas_clicked();
+
+  void on_pushButton_clicked();
 
 public: // from Zzaiyan
   void setRelData(int ID1, int ID2, const RelData &e);

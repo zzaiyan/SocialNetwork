@@ -314,8 +314,8 @@ void MyCanvas::readFile() {
 }
 
 void MyCanvas::writeFile() {
-  QString fileName = QFileDialog::getOpenFileName(
-      this, tr("Excel file"), qApp->applicationDirPath(), tr("Files (*.csv)"));
+  QString fileName = QFileDialog::getSaveFileName(
+      this, tr("save file"), qApp->applicationDirPath(), tr("Files (*.csv)"));
   QFile file(fileName);
   QTextStream out(&file);
   if (!file.open(QIODevice::WriteOnly)) {
@@ -376,6 +376,8 @@ void MyCanvas::getImpact() {
   auto trans = [&](int &x) { x = sqrt(x); };
   // 影响力 = 邻居的度数 x 亲密度 +自己的度数 x2
   for (int i = 0; i < vers.size(); i++) {
+    vers[i]->_data.impact = 0;
+
     for (auto &e : *pAdj(i))
       vers[i]->_data.impact += e._data.cohesion * Degree(e.to);
 

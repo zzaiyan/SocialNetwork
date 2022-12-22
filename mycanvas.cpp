@@ -86,6 +86,17 @@ void MyCanvas::repaint() {
     ui->openFile->setEnabled(false);
   }
 }
+//更新数值
+void MyCanvas::updateValue() {
+  roleCnt = net.getVerNum();
+  //在任何有向图图中，所有顶点的入度等于出度等于边数
+  for (int i = 0; i < roleCnt; i++) {
+    relCnt += net.inDegree(i);
+  }
+  ui->countLabel->setText(
+      QString("Nodes：%1，Edges：%2").arg(roleCnt).arg(relCnt));
+  getImpact();
+}
 
 void MyCanvas::on_addRole_clicked() {
   // 新建roleItem，分配ID
@@ -104,6 +115,7 @@ void MyCanvas::on_addRole_clicked() {
   hashName.insert(newRole->name, ver);
   // 加入场景
   scene->addItem(newRole);
+  updateValue();
 }
 
 void MyCanvas::on_deleteItem_clicked() {
@@ -122,6 +134,7 @@ void MyCanvas::on_deleteItem_clicked() {
     net.rmArc(ver1, ver2);
     selectedRel->removeThis();
   }
+  updateValue();
 }
 
 void MyCanvas::on_nameEdit_editingFinished() {
@@ -203,6 +216,7 @@ void MyCanvas::clear() {
   hashName.clear();
   hashID.clear();
   roleCnt &= 0;
+  updateValue();
 }
 
 void MyCanvas::readFile() {
@@ -250,16 +264,14 @@ void MyCanvas::readFile() {
     auto roleItem = new Role(ID, view, name, path);
     roleItem->setColor(color);
 
-    //  加入场景
+    // 加入场景
     scene->addItem(roleItem);
-    // setPosition
+    // 设置坐标
     roleItem->setPos(pos_x, pos_y);
     qDebug() << pos_x << " " << pos_y;
-    //  here does not effect;
 
     // 建立顶点，绑定Role
     auto ver = net.addVer({ID, name, roleItem, color, path});
-    //    ver->_data.color = color;
 
     qDebug() << QString("%1 -> %2").arg(name).arg(ID);
 
@@ -281,7 +293,7 @@ void MyCanvas::readFile() {
     auto ver2 = hashName[*it++];
     auto label = *it++;
     auto color = (*it++).toInt();
-    auto cohesion = (*it++).toInt();
+    auto cohesion = (*it++).toDouble();
 
     qDebug() << QString("<%1, %2> = %3")
                     .arg(ver1->_data.name)
@@ -294,9 +306,10 @@ void MyCanvas::readFile() {
     net.addArc(ver1, ver2, {label, color, relItem, cohesion});
   }
   //  shuffle();
-  getImpact();
+
   inFile.close();
   scene->update();
+  updateValue();
   qDebug() << "文件读取完成!";
 }
 
@@ -304,8 +317,7 @@ void MyCanvas::writeFile() {
   QString fileName = QFileDialog::getOpenFileName(
       this, tr("Excel file"), qApp->applicationDirPath(), tr("Files (*.csv)"));
   QFile file(fileName);
-  QTextStream in(&file);
-  //  in.setCodec("GBK"); //这行的目的是支持读取中文信息
+  QTextStream out(&file);
   if (!file.open(QIODevice::WriteOnly)) {
     qDebug() << "Write file error!";
     exit(1);
@@ -321,7 +333,7 @@ void MyCanvas::writeFile() {
                     .arg(arcNum)
                     .arg(scene->itemsBoundingRect().width())
                     .arg(scene->itemsBoundingRect().height());
-  in << buf << '\n';
+  out << buf << '\n';
 
   for (int i = 0; i < verNum; i++) { // for Vers
     auto &data = vers[i]->_data;
@@ -333,7 +345,7 @@ void MyCanvas::writeFile() {
               .arg(data.item->scenePos().y())
               .arg(imgPath);
 
-    in << buf << '\n';
+    out << buf << '\n';
   }
 
   for (int i = 0; i < verNum; i++) {
@@ -345,13 +357,13 @@ void MyCanvas::writeFile() {
                 .arg(arc._data.label)
                 .arg(arc._data.color)
                 .arg(arc._data.cohesion);
-      in << buf << '\n';
+      out << buf << '\n';
     }
   }
   file.close();
 }
 
-int MyCanvas::getImpact() {
+void MyCanvas::getImpact() {
   auto vers = net.getVers();
   // 获取邻接表指针
   auto pAdj = [&](int id) { return &vers[id]->_Adj; };
@@ -362,18 +374,16 @@ int MyCanvas::getImpact() {
   };
   // 数据优化函数
   auto trans = [&](int &x) { x = sqrt(x); };
-
+  // 影响力 = 邻居的度数 x 亲密度 +自己的度数 x2
   for (int i = 0; i < vers.size(); i++) {
     for (auto &e : *pAdj(i))
       vers[i]->_data.impact += e._data.cohesion * Degree(e.to);
 
     for (auto &e : *prAdj(i))
-      vers[i]->_data.impact += e._data.cohesion * Degree(e.from);
-
-    trans(vers[i]->_data.impact);
+      vers[i]->_data.impact += e._data.cohesion * Degree(e.to);
+    vers[i]->_data.impact += Degree(vers[i]) * 2;
+    // trans(vers[i]->_data.impact);
   }
-
-  return 666;
 }
 
 void MyCanvas::setRelData(int ID1, int ID2, const RelData &e) {
@@ -486,7 +496,7 @@ void MyCanvas::on_checkBox_stateChanged(int arg1) {
     view->mode = 1;
   }
 }
-void MyCanvas::setZoomText() {
+void MyCanvas::updateZoomText() {
   ui->zoomLabel->setText(QString("缩放比例：%1%").arg(int(view->zoom * 100)));
 }
 QString MyCanvas::FileCharacterEncoding(const QString &fileName) {

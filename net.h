@@ -101,7 +101,7 @@ public:
 
   int getVerNum() const { return vers.size(); }
 
-  int inDegree(int id) const { return rAdj(id).size(); }
+  int inDegree(int id) { return rAdj(id).size(); }
   int inDegree(VerNode *ver) const { return inDegree(ver->_pos); }
 
   int outDegree(int id) const { return Adj(id).size(); }

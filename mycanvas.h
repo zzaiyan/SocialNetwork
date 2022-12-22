@@ -82,7 +82,8 @@ public: // from Zzaiyan
 
   void readFile();
   void writeFile();
-  void setZoomText();
+  void updateZoomText();
+  void updateValue();
 
 private:
   Ui::MyCanvas *ui;
@@ -95,7 +96,8 @@ private:
 
   int SearchModelChoice = 0;
   int roleCnt = 0;
-  int getImpact();
+  int relCnt = 0;
+  void getImpact();
   //自动识别文件编码
   QString FileCharacterEncoding(const QString &fileName);
   QString codec;

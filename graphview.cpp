@@ -64,7 +64,7 @@ void GraphView::MyScale(qreal step) {
   if (zoom < 0.05 || zoom > 40)
     return;
   this->scale(factor, factor);
-  canvas->setZoomText();
+  canvas->updateZoomText();
 }
 
 void GraphView::mousePressEvent(QMouseEvent *mouseEvent) {
@@ -114,6 +114,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *mouseEvent) {
         canvas->addNetArc(startItem->name, endItem->name, "newRel", rel);
         qDebug() << startItem->name << endItem->name;
         scene()->addItem(rel);
+        canvas->updateValue();
       }
     }
   }

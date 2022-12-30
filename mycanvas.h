@@ -92,7 +92,7 @@ private:
   int roleCnt = 0;
   int relCnt = 0;
   void getImpact();
-  //自动识别文件编码
+  // 自动识别文件编码
   QString FileCharacterEncoding(const QString &fileName);
   QString codec;
 };

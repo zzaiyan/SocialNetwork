@@ -4,8 +4,8 @@
 #include <QFile>
 #include <cmath>
 
-//#define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
-//#define REL_FILE "../SocialNetworkAnalist/data/data.csv"
+// #define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
+// #define REL_FILE "../SocialNetworkAnalist/data/data.csv"
 #define DATA_FILE "../SocialNetworkAnalist/data1.csv"
 
 MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
@@ -86,11 +86,11 @@ void MyCanvas::repaint() {
     ui->openFile->setEnabled(false);
   }
 }
-//更新数值
+// 更新数值
 void MyCanvas::updateValue() {
   roleCnt = net.getVerNum();
   relCnt = 0;
-  //在任何有向图图中，所有顶点的入度等于出度等于边数
+  // 在任何有向图图中，所有顶点的入度等于出度等于边数
   for (int i = 0; i < roleCnt; i++) {
     relCnt += net.outDegree(i);
   }
@@ -211,8 +211,10 @@ void MyCanvas::shuffle() {
 void MyCanvas::clear() {
   // 清空场景
   QList<QGraphicsItem *> all = scene->items();
-  foreach (QGraphicsItem *item, all) { scene->removeItem(item); }
-  //清空数据结构
+  foreach (QGraphicsItem *item, all) {
+    scene->removeItem(item);
+  }
+  // 清空数据结构
   net.clear();
   hashName.clear();
   hashID.clear();
@@ -229,16 +231,15 @@ void MyCanvas::readFile() {
     qDebug() << "DATA_FILE read error!";
     exit(1);
   }
-  QStringList list; //读取每一行的内容
+  QStringList list; // 读取每一行的内容
   QTextStream in(&inFile);
   codec = FileCharacterEncoding(fileName);
-  in.setCodec(codec.toLocal8Bit()); //这行的目的是支持读取中文信息
+  in.setCodec(codec.toLocal8Bit()); // 这行的目的是支持读取中文信息
   qDebug() << codec;
   int lineCnt = 0, verNum, arcNum;
-  {
-    // Code Scope : avoid name conflict
+  { // Code Scope : avoid name conflict
     QString fileLine = in.readLine();
-    list = fileLine.split(","); //根据","开分隔开每行的列
+    list = fileLine.split(","); // 根据","开分隔开每行的列
     auto it = list.begin();
     verNum = (*it++).toInt();
     arcNum = (*it++).toInt();
@@ -249,7 +250,7 @@ void MyCanvas::readFile() {
 
   while (lineCnt < verNum) {
     QString fileLine = in.readLine();
-    list = fileLine.split(","); //根据","开分隔开每行的列
+    list = fileLine.split(","); // 根据","开分隔开每行的列
     auto it = list.begin();
     auto name = *it++;
     auto color = (*it++).toInt();
@@ -287,7 +288,7 @@ void MyCanvas::readFile() {
 
   while (lineCnt < arcNum && !in.atEnd()) {
     QString fileLine = in.readLine();
-    list = fileLine.split(","); //根据","开分隔开每行的列
+    list = fileLine.split(","); // 根据","开分隔开每行的列
     auto it = list.begin();
 
     auto ver1 = hashName[*it++];
@@ -370,11 +371,8 @@ void MyCanvas::getImpact() {
   auto pAdj = [&](int id) { return &vers[id]->_Adj; };
   auto prAdj = [&](int id) { return &vers[id]->_rAdj; };
   // 由VerNode指针计算度数和
-  auto Degree = [&](decltype(vers)::value_type(p)) { //丑陋的类型声明
-    return pAdj(p->_pos)->size() + prAdj(p->_pos)->size();
-  };
-  // 数据优化函数
-  auto trans = [&](int &x) { x = sqrt(x); };
+  using pVer = decltype(vers)::value_type;
+  auto Degree = [&](pVer v) { return net.totalDegree(v); };
   // 影响力 = 邻居的度数 x 亲密度 +自己的度数 x2
   for (int i = 0; i < vers.size(); i++) {
     vers[i]->_data.impact = 0;
@@ -384,8 +382,8 @@ void MyCanvas::getImpact() {
 
     for (auto &e : *prAdj(i))
       vers[i]->_data.impact += e._data.cohesion * Degree(e.to);
+
     vers[i]->_data.impact += Degree(vers[i]) * 2;
-    // trans(vers[i]->_data.impact);
   }
 }
 
@@ -433,11 +431,11 @@ void MyCanvas::on_queryButton1_clicked() {
   QString queryText = ui->queryEdit->text();
   ALNet<RoleData, RelData>::VerNode *ver = nullptr;
   switch (SearchModelChoice) {
-  case 0: //按姓名查询
+  case 0: // 按姓名查询
     if (hashName.contains(queryText))
       ver = hashName[queryText];
     break;
-  case 1: //按ID查询
+  case 1: // 按ID查询
     if (hashID.contains(queryText.toInt()))
       ver = hashID[queryText.toInt()];
     break;
@@ -457,13 +455,13 @@ void MyCanvas::on_queryButton2_clicked() {
   ALNet<RoleData, RelData>::VerNode *ver1 = nullptr, *ver2 = nullptr;
   ALNet<RoleData, RelData>::ArcNode *arc;
   switch (SearchModelChoice) {
-  case 0: //按姓名查询
+  case 0: // 按姓名查询
     if (hashName.contains(text1))
       ver1 = hashName[text1];
     if (hashName.contains(text2))
       ver2 = hashName[text2];
     break;
-  case 1: //按ID查询
+  case 1: // 按ID查询
     if (hashID.contains(text1.toInt()))
       ver1 = hashID[text1.toInt()];
     if (hashID.contains(text2.toInt()))
@@ -496,14 +494,14 @@ void MyCanvas::updateZoomText() {
   ui->zoomLabel->setText(QString("缩放比例：%1%").arg(int(view->zoom * 100)));
 }
 QString MyCanvas::FileCharacterEncoding(const QString &fileName) {
-  //假定默认编码utf8
+  // 假定默认编码utf8
   QString code = "UTF-8";
 
   QFile file(fileName);
   if (file.open(QIODevice::ReadOnly)) {
-    //读取30字节用于判断
+    // 读取30字节用于判断
     QByteArray buffer = file.read(30);
-    //尝试用utf8转换,如果无效字符数大于0,则表示是ansi编码
+    // 尝试用utf8转换,如果无效字符数大于0,则表示是ansi编码
     QTextCodec::ConverterState cs;
     QTextCodec *tc = QTextCodec::codecForName("UTF-8");
     tc->toUnicode(buffer.constData(), buffer.size(), &cs);

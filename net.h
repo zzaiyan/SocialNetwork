@@ -48,10 +48,10 @@ public:
     return vers[id]->_rAdj; // 获取逆邻接表
   }
 
-  auto &Adj(VerNode *p) { return Adj(p->_pos); }
-  auto &rAdj(VerNode *p) { return rAdj(p->_pos); }
+  auto &Adj(VerNode *p) const { return Adj(p->_pos); }
+  auto &rAdj(VerNode *p) const { return rAdj(p->_pos); }
 
-  auto &getVers() { return vers; } //获取顶点和邻接表，用于遍历
+  auto &getVers() { return vers; } // 获取顶点和邻接表，用于遍历
 
 public:
   ALNet(const int s = 0) {
@@ -125,14 +125,13 @@ public:
     return &Adj(a).back()._data;
   }
   ArcData *addArc(VerNode *a, VerNode *b, const ArcData &e) {
-    if (a && b)
-      return addArc(a->_pos, b->_pos, e);
-    qDebug() << "Arc Add ERROR!";
-    return nullptr;
+    Adj(a).push_back({a, b, e});
+    rAdj(b).push_back({b, a, e});
+    return &Adj(a).back()._data;
   }
   // 判断边
   bool haveArc(int a, int b) { return getArc(a, b) != nullptr; }
-  bool haveArc(VerNode *a, VerNode *b) { return haveArc(a->_pos, b->_pos); }
+  bool haveArc(VerNode *a, VerNode *b) { return getArc(a, b) != nullptr; }
   // 改变顶点的数据
   bool setVer(int id, const VerData &e) {
     auto ver = getVer(id);

@@ -18,7 +18,7 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
 
   scene = new QGraphicsScene;
   // scene->setSceneRect(-5000, -5000, 10000, 10000);
-  view = new GraphView(this); // 绑定this与view
+  view = new MyGraphicsView(this); // 绑定this与view
 
   view->setScene(scene);
   view->setMinimumWidth(400);
@@ -89,9 +89,10 @@ void MyCanvas::repaint() {
 //更新数值
 void MyCanvas::updateValue() {
   roleCnt = net.getVerNum();
+  relCnt = 0;
   //在任何有向图图中，所有顶点的入度等于出度等于边数
   for (int i = 0; i < roleCnt; i++) {
-    relCnt += net.inDegree(i);
+    relCnt += net.outDegree(i);
   }
   ui->countLabel->setText(
       QString("Nodes：%1，Edges：%2").arg(roleCnt).arg(relCnt));

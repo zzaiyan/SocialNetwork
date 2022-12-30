@@ -10,17 +10,17 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    graphview.cpp \
     main.cpp \
     mainwindow.cpp \
     mycanvas.cpp \
+    mygraphicsview.cpp \
     rel.cpp \
     role.cpp
 
 HEADERS += \
-    graphview.h \
     mainwindow.h \
     mycanvas.h \
+    mygraphicsview.h \
     net.h \
     node.h \
     rel.h \

@@ -1,7 +1,7 @@
 #ifndef MYCANVAS_H
 #define MYCANVAS_H
 
-#include "graphview.h"
+#include "mygraphicsview.h"
 #include "net.h"
 #include "node.h"
 #include "rel.h"
@@ -23,7 +23,7 @@ namespace Ui {
 class MyCanvas;
 }
 
-class GraphView;
+class MyGraphicsView;
 struct RoleData;
 struct RelData;
 
@@ -82,7 +82,7 @@ public: // from Zzaiyan
 private:
   Ui::MyCanvas *ui;
   QGraphicsScene *scene;
-  GraphView *view;
+  MyGraphicsView *view;
 
   QGraphicsItem *selectedItem = nullptr;
   Role *selectedRole = nullptr;

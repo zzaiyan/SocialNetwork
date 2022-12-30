@@ -1,7 +1,7 @@
-#include "graphview.h"
+#include "mygraphicsview.h"
 #include <QtOpenGL>
 
-GraphView::GraphView(MyCanvas *p, QWidget *parent)
+MyGraphicsView::MyGraphicsView(MyCanvas *p, QWidget *parent)
     : QGraphicsView(parent), canvas(p) {
   this->setBackgroundBrush(Qt::transparent);
   this->setRenderHints(QPainter::Antialiasing |
@@ -18,13 +18,13 @@ GraphView::GraphView(MyCanvas *p, QWidget *parent)
 
 //通过此itemMoved（）函数收到节点移动的通知。
 //它的工作只是重新启动主计时器，以防它尚未运行。
-void GraphView::itemMoved() {
+void MyGraphicsView::itemMoved() {
   if (!timerId)
     timerId = startTimer(0);
 }
 
 //计时器事件处理程序的工作是将整个力计算机制作为平滑动画运行。
-void GraphView::timerEvent(QTimerEvent *event) {
+void MyGraphicsView::timerEvent(QTimerEvent *event) {
   Q_UNUSED(event);
   if (mode) {
     //计算所有节点受到的力
@@ -50,7 +50,7 @@ void GraphView::timerEvent(QTimerEvent *event) {
   }
 }
 
-void GraphView::wheelEvent(QWheelEvent *event) {
+void MyGraphicsView::wheelEvent(QWheelEvent *event) {
   int numValue = event->delta(); //获取事件中滚轮的步进距离
   qreal numDegrees = numValue / 8.0;
   qreal numSteps = numDegrees / 15.0;
@@ -58,7 +58,7 @@ void GraphView::wheelEvent(QWheelEvent *event) {
 }
 
 //自定义的view缩放方法
-void GraphView::MyScale(qreal step) {
+void MyGraphicsView::MyScale(qreal step) {
   qreal factor = 1.0 + step / 10.0;
   zoom *= factor; // zoom用于记录对象的当前的缩放比
   if (zoom < 0.05 || zoom > 40)
@@ -67,7 +67,7 @@ void GraphView::MyScale(qreal step) {
   canvas->updateZoomText();
 }
 
-void GraphView::mousePressEvent(QMouseEvent *mouseEvent) {
+void MyGraphicsView::mousePressEvent(QMouseEvent *mouseEvent) {
   if (mouseEvent->button() == Qt::RightButton) {
     line = new QGraphicsLineItem(
         QLineF(mapToScene(mouseEvent->pos()), mapToScene(mouseEvent->pos())));
@@ -77,7 +77,7 @@ void GraphView::mousePressEvent(QMouseEvent *mouseEvent) {
     QGraphicsView::mousePressEvent(mouseEvent);
 }
 
-void GraphView::mouseMoveEvent(QMouseEvent *mouseEvent) {
+void MyGraphicsView::mouseMoveEvent(QMouseEvent *mouseEvent) {
   if (line != nullptr) {
     QLineF newLine(line->line().p1(), mapToScene(mouseEvent->pos()));
     line->setLine(newLine);
@@ -86,7 +86,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *mouseEvent) {
   }
 }
 
-void GraphView::mouseReleaseEvent(QMouseEvent *mouseEvent) {
+void MyGraphicsView::mouseReleaseEvent(QMouseEvent *mouseEvent) {
   if (line != nullptr) {
     QList<QGraphicsItem *> startItems = scene()->items(line->line().p1());
     if (startItems.count() && startItems.first() == line)

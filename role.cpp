@@ -1,9 +1,9 @@
 #include "role.h"
-#include "graphview.h"
+#include "mygraphicsview.h"
 #include <algorithm>
 #include <cmath>
 
-Role::Role(int id, GraphView *view, QString tname, QString imgPath)
+Role::Role(int id, MyGraphicsView *view, QString tname, QString imgPath)
     : ID(id), view(view), imgPath(imgPath), color(BLUE), radius(20) {
   // 可选择、可移动
   setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);

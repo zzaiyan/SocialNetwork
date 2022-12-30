@@ -13,12 +13,12 @@
 #include <QtSvg>
 
 class Rel;
-class GraphView;
+class MyGraphicsView;
 class Role : public QGraphicsItem {
 public:
   enum { Type = UserType + 77 };
   int type() const override { return Type; }
-  Role(int id, GraphView *view, QString tname = "", QString imgPath = "");
+  Role(int id, MyGraphicsView *view, QString tname = "", QString imgPath = "");
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget) override;
@@ -37,7 +37,7 @@ public:
   //  void setData(RoleData *p) { data = p; }
 
   int ID;
-  GraphView *view;
+  MyGraphicsView *view;
   QString name;
   QString imgPath;
   QPointF newPos;

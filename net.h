@@ -41,10 +41,10 @@ private:
 
 public:
   // 这两个其实是语法糖
-  list<ArcNode> &Adj(int id) {
+  list<ArcNode> &Adj(int id) const {
     return vers[id]->_Adj; // 获取邻接表
   }
-  list<ArcNode> &rAdj(int id) {
+  list<ArcNode> &rAdj(int id) const {
     return vers[id]->_rAdj; // 获取逆邻接表
   }
 
@@ -101,7 +101,7 @@ public:
 
   int getVerNum() const { return vers.size(); }
 
-  int inDegree(int id) { return rAdj(id).size(); }
+  int inDegree(int id) const { return rAdj(id).size(); }
   int inDegree(VerNode *ver) const { return inDegree(ver->_pos); }
 
   int outDegree(int id) const { return Adj(id).size(); }

@@ -88,12 +88,9 @@ void MyCanvas::repaint() {
 }
 // 更新数值
 void MyCanvas::updateValue() {
-  roleCnt = net.getVerNum();
-  relCnt = 0;
-  // 在任何有向图图中，所有顶点的入度等于出度等于边数
-  for (int i = 0; i < roleCnt; i++) {
-    relCnt += net.outDegree(i);
-  }
+  int roleCnt = net.getVerNum();
+  int relCnt = net.getArcNum();
+
   ui->countLabel->setText(
       QString("Nodes：%1，Edges：%2").arg(roleCnt).arg(relCnt));
   getImpact();
@@ -101,7 +98,7 @@ void MyCanvas::updateValue() {
 
 void MyCanvas::on_addRole_clicked() {
   // 新建roleItem，分配ID
-  auto *newRole = new Role(roleCnt++, view);
+  auto *newRole = new Role(++roleID, view);
 
   auto viewSize = view->size();
   // 每次添加人物的位置都保证在视图的中心点处
@@ -124,6 +121,8 @@ void MyCanvas::on_deleteItem_clicked() {
     //    selectedItem = nullptr;
     qDebug() << "remove:" << selectedRole->ID << selectedRole->name;
     auto ver = hashID[selectedRole->ID];
+    hashID.remove(selectedRole->ID);
+    hashName.remove(selectedRole->name);
     selectedRole->removeThis();
     net.rmVer(ver);
   }
@@ -218,7 +217,7 @@ void MyCanvas::clear() {
   net.clear();
   hashName.clear();
   hashID.clear();
-  roleCnt &= 0;
+  roleID &= 0;
   updateValue();
 }
 
@@ -242,6 +241,7 @@ void MyCanvas::readFile() {
     list = fileLine.split(","); // 根据","开分隔开每行的列
     auto it = list.begin();
     verNum = (*it++).toInt();
+    roleID = verNum; // update
     arcNum = (*it++).toInt();
     auto x = (*it++).toDouble();
     auto y = (*it++).toDouble();
@@ -366,24 +366,38 @@ void MyCanvas::writeFile() {
 }
 
 void MyCanvas::getImpact() {
-  auto vers = net.getVers();
-  // 获取邻接表指针
-  auto pAdj = [&](int id) { return &vers[id]->_Adj; };
-  auto prAdj = [&](int id) { return &vers[id]->_rAdj; };
+  //  auto &vers = net.getVers();
+  //  // 获取邻接表指针
+  //  auto pAdj = [&](int id) { return &vers[id]->_Adj; };
+  //  auto prAdj = [&](int id) { return &vers[id]->_rAdj; };
   // 由VerNode指针计算度数和
-  using pVer = decltype(vers)::value_type;
-  auto Degree = [&](pVer v) { return net.totalDegree(v); };
+  //  using pVer = decltype(net.getVers())::value_type;
+  //  auto Degree = [&](decltype(net.getVers())::value_type(v)) {
+  //    return net.totalDegree(v);
+  //  };
   // 影响力 = 邻居的度数 x 亲密度 +自己的度数 x2
-  for (int i = 0; i < vers.size(); i++) {
-    vers[i]->_data.impact = 0;
+  //  for (int i = 0; i < vers.size(); i++) {
+  //    vers[i]->_data.impact = 0;
 
-    for (auto &e : *pAdj(i))
-      vers[i]->_data.impact += e._data.cohesion * Degree(e.to);
+  //    for (auto &e : *pAdj(i))
+  //      vers[i]->_data.impact += e._data.cohesion * net.totalDegree(e.to);
 
-    for (auto &e : *prAdj(i))
-      vers[i]->_data.impact += e._data.cohesion * Degree(e.to);
+  //    for (auto &e : *prAdj(i))
+  //      vers[i]->_data.impact += e._data.cohesion * net.totalDegree(e.to);
 
-    vers[i]->_data.impact += Degree(vers[i]) * 2;
+  //    vers[i]->_data.impact += net.totalDegree(vers[i]) * 2;
+  //  }
+  for (auto &ver : net.getVers()) {
+    ver->_data.impact = 0;
+    qDebug() << ver->_Adj.size() << ver->_rAdj.size();
+
+    for (auto &e : ver->_Adj)
+      ver->_data.impact += e._data.cohesion * net.totalDegree(e.to);
+
+    for (auto &e : ver->_rAdj)
+      ver->_data.impact += e._data.cohesion * net.totalDegree(e.to);
+
+    ver->_data.impact += net.totalDegree(ver) * 2;
   }
 }
 
@@ -405,7 +419,7 @@ RelData *MyCanvas::addNetArc(const QString &name1, const QString &name2,
 void MyCanvas::on_debugButton_clicked() {
   net.printVers();
   net.printTable();
-  writeFile();
+  //  writeFile();
 }
 void MyCanvas::setColor(int c) {
   if (selectedRole != nullptr) {

@@ -61,8 +61,8 @@ void MyGraphicsView::wheelEvent(QWheelEvent *event) {
 void MyGraphicsView::MyScale(qreal step) {
   qreal factor = 1.0 + step / 10.0;
   zoom *= factor; // zoom用于记录对象的当前的缩放比
-  if (zoom < 0.05 || zoom > 40)
-    return;
+                  //  if (zoom < 0.05 || zoom > 40)
+                  //    return;
   this->scale(factor, factor);
   canvas->updateZoomText();
 }

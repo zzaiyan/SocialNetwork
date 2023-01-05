@@ -3,13 +3,13 @@
 
 #include <QDebug>
 #include <QString>
+
+#include <list>
 #include <queue>
-#include <stack>
 #include <vector>
 
 using std::list;
 using std::queue;
-using std::stack;
 using std::vector;
 
 template <class VerData, class ArcData> class ALNet {
@@ -20,8 +20,7 @@ public:
     VerData _data;
     list<ArcNode> _Adj, _rAdj; // 出度表 + 入度表
 
-    VerNode(int i = -1) : _pos(i) {}
-    VerNode(int i, const VerData &e) : _pos(i), _data(e) {}
+    VerNode(int i, const VerData &e = {}) : _pos(i), _data(e) {}
   };
   struct ArcNode { // 有向边
     VerNode *from = nullptr;
@@ -32,178 +31,120 @@ public:
 private:
   vector<VerNode *> vers; // 顶点数组
 
-  int fromNum(const ArcNode &a) {
+  int fromNum(const ArcNode &a) const {
     return a.from->_pos; // 获取起点下标
   }
-  int toNum(const ArcNode &a) {
+  int toNum(const ArcNode &a) const {
     return a.to->_pos; // 获取终点下标
   }
 
 public:
   // 这两个其实是语法糖
-  list<ArcNode> &Adj(int id) const {
-    return vers[id]->_Adj; // 获取邻接表
-  }
-  list<ArcNode> &rAdj(int id) const {
-    return vers[id]->_rAdj; // 获取逆邻接表
-  }
-
-  auto &Adj(VerNode *p) const { return Adj(p->_pos); }
-  auto &rAdj(VerNode *p) const { return rAdj(p->_pos); }
+  // 获取邻接表
+  auto &Adj(int id) const { return vers.at(id)->_Adj; }
+  // 获取逆邻接表
+  auto &rAdj(int id) const { return vers.at(id)->_rAdj; }
+  // 获取邻接表
+  auto &Adj(VerNode *p) const { return p->_Adj; }
+  // 获取逆邻接表
+  auto &rAdj(VerNode *p) const { return p->_rAdj; }
 
   auto &getVers() { return vers; } // 获取顶点和邻接表，用于遍历
 
 public:
   ALNet(const int s = 0) {
     for (int i = 0; i < s; i++) // initialize
-      vers.push_back(new VerNode{i, {}});
+      vers.push_back(new VerNode{i});
   }
   void clear() {
     for (auto &&p : vers)
       delete p;
     vers.clear();
   }
-  // 获取下标对应的顶点指针
-  VerNode *getVer(int id) { return vers[id]; }
   // 获取顶点序偶对应的边指针
-  ArcNode *getArc(int a, int b) {
+  ArcNode *getArc(VerNode *a, VerNode *b) {
     ArcNode *arc = nullptr;
     for (auto it = Adj(a).begin(); it != Adj(a).end(); it++)
-      if (it->to->_pos == b) {
+      if (it->to->_pos == b->_pos) {
         arc = &(*it);
         break;
       }
     return arc;
   }
 
-  ArcNode *getArc(VerNode *a, VerNode *b) {
-    if (a && b)
-      return getArc(a->_pos, b->_pos);
-    qDebug() << "Arc Get ERROR!";
-    return nullptr;
-  }
-
-  ArcNode *getRArc(int a, int b) {
+  ArcNode *getRArc(VerNode *a, VerNode *b) {
     ArcNode *arc = nullptr;
     for (auto it = rAdj(b).begin(); it != rAdj(b).end(); it++)
-      if (it->to->_pos == a) {
+      if (it->to->_pos == a->_pos) {
         arc = &(*it);
         break;
       }
     return arc;
-  }
-  ArcNode *getRArc(VerNode *a, VerNode *b) {
-    if (a && b)
-      return getRArc(a->_pos, b->_pos);
-    qDebug() << "rArc Get ERROR!";
-    return nullptr;
   }
 
   int getVerNum() const { return vers.size(); }
+  int getArcNum() const {
+    int arcNum = 0;
+    for (auto ver : vers)
+      arcNum += ver->_Adj.size();
+    return arcNum;
+  }
 
-  int inDegree(int id) const { return rAdj(id).size(); }
-  int inDegree(VerNode *ver) const { return inDegree(ver->_pos); }
+  int _inDegree(int id) const { return rAdj(id).size(); }
+  int inDegree(VerNode *ver) const { return ver->_rAdj.size(); }
 
-  int outDegree(int id) const { return Adj(id).size(); }
-  int outDegree(VerNode *ver) const { return outDegree(ver->_pos); }
+  int _outDegree(int id) const { return Adj(id).size(); }
+  int outDegree(VerNode *ver) const { return ver->_Adj.size(); }
 
-  int totalDegree(int id) const { return inDegree(id) + outDegree(id); }
+  int _totalDegree(int id) const { return inDegree(id) + outDegree(id); }
   int totalDegree(VerNode *ver) const { return inDegree(ver) + outDegree(ver); }
 
-  // 尾插顶点并赋值
-  VerNode *addVer(const VerData &e) {
+  // 尾插顶点
+  VerNode *addVer(const VerData &e = {}) {
     auto ver = new VerNode{vers.size(), e};
     vers.push_back(ver);
     return ver;
   }
-  // 尾插顶点
-  VerNode *addVer() { return addVer({}); }
   // 加边
-  ArcData *addArc(int a, int b, const ArcData &e) {
-    Adj(a).push_back({getVer(a), getVer(b), e});
-    rAdj(b).push_back({getVer(b), getVer(a), e});
-    return &Adj(a).back()._data;
-  }
-  ArcData *addArc(VerNode *a, VerNode *b, const ArcData &e) {
+  ArcData *addArc(VerNode *a, VerNode *b, const ArcData &e = {}) {
     Adj(a).push_back({a, b, e});
     rAdj(b).push_back({b, a, e});
     return &Adj(a).back()._data;
   }
   // 判断边
-  bool haveArc(int a, int b) { return getArc(a, b) != nullptr; }
   bool haveArc(VerNode *a, VerNode *b) { return getArc(a, b) != nullptr; }
-  // 改变顶点的数据
-  bool setVer(int id, const VerData &e) {
-    auto ver = getVer(id);
-    if (ver == nullptr)
-      return false;
-    ver->_data = e;
-    return true;
-  }
-  // 改变边的数据
-  bool setArc(int a, int b, const ArcData &e) {
-    auto arc = getArc(a, b);
-    //    auto str = arc->_data;
-    if (arc == nullptr)
-      return false;
-    arc->_data = e;
-    return true;
-  }
 
-  bool rmArc(int a, int b) {
-    //    ArcData ret;
-    auto it1 = Adj(a).begin();
-    auto it2 = rAdj(b).begin();
-
-    for (; it1 != Adj(a).end(); it1++)
-      if (it1->to->_pos == b)
-        break;
-
-    for (; it2 != rAdj(b).end(); it2++)
-      if (it2->to->_pos == a)
-        break;
-
-    Adj(a).erase(it1);
-    rAdj(b).erase(it2);
-    return true;
-  }
   bool rmArc(VerNode *a, VerNode *b) {
-    auto arc = getArc(a, b);
-    if (arc == nullptr)
-      return false;
-    return rmArc(a->_pos, b->_pos);
+    auto it1 = a->_Adj.begin();
+    auto it2 = b->_rAdj.begin();
+
+    for (; it1 != a->_Adj.end(); it1++)
+      if (it1->to->_pos == b->_pos)
+        break;
+
+    for (; it2 != b->_rAdj.end(); it2++)
+      if (it2->to->_pos == a->_pos)
+        break;
+
+    a->_Adj.erase(it1);
+    b->_rAdj.erase(it2);
+    return true;
   }
 
-  void rmVer(int id) {
-    // 首先删除以该点为终点的边
-    for (int i = 0; i < vers.size(); i++) {
-      if (i == id)
-        continue;
-      queue<std::pair<int, int>> que;
-      for (auto &e : Adj(i)) {
-        int a = fromNum(e), b = toNum(e);
-        if (b == id)
-          que.push({a, b});
-      }
-      while (que.size()) {
-        rmArc(que.front().first, que.front().second);
-        que.pop();
-      }
-    }
-    // 然后删除顶点以及邻接表
-    delete vers[id];
-    for (int i = id + 1; i < vers.size(); i++) {
+  void rmVer(VerNode *delVer) {
+    for (auto &e : delVer->_Adj)
+      rmArc(e.from, e.to);
+
+    for (auto &e : delVer->_rAdj)
+      rmArc(e.to, e.from);
+
+    int i = delVer->_pos + 1;
+    for (; i < vers.size(); i++) {
       vers[i]->_pos--;
       vers[i - 1] = vers[i];
     }
+    delete delVer;
     vers.pop_back();
-    //    return ret;
-  }
-  void rmVer(VerNode *ver) {
-    if (ver)
-      rmVer(ver->_pos);
-    else
-      qDebug() << "Remove Ver ERROR!";
   }
 
   // 以下函数依照项目特化

@@ -14,28 +14,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget#MainWindow{
-	background-color:  white;
-}
-QLineEdit{
-    color: #444;
-	padding:5px;
-    background-color: white;
-    border: 1px solid #008cba;
-}
-QPushButton{
-	background-color: #E5F1FC;
-	border: 0px solid #E5F1FC;
-	color: #2196F3;
-	border-radius: 30px;
-}
-QPushButton:hover{
-	background-color: #D7EAFB;
-	color: #158EF2;
-}
-QLabel{
-	color: #69788F;
-}</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">

@@ -11,24 +11,30 @@ CONFIG += c++17
 
 SOURCES += \
     canvaswidget.cpp \
-    launcher.cpp \
+    littlefamily.cpp \
     main.cpp \
     mygraphicsview.cpp \
+    querywidget.cpp \
     rel.cpp \
-    role.cpp
+    role.cpp \
+    significancer.cpp
 
 HEADERS += \
     canvaswidget.h \
-    launcher.h \
+    littlefamily.h \
     mygraphicsview.h \
     net.h \
     node.h \
+    querywidget.h \
     rel.h \
-    role.h
+    role.h \
+    significancer.h
 
 FORMS += \
     canvaswidget.ui \
-    launcher.ui
+    littlefamily.ui \
+    querywidget.ui \
+    significancer.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

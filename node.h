@@ -1,6 +1,6 @@
 #ifndef NODE_H
 #define NODE_H
-//#include "mycanvas.h"
+// #include "mycanvas.h"
 #include "net.h"
 #include "rel.h"
 #include "role.h"
@@ -12,25 +12,24 @@ class Rel;
 struct RoleData {
   int ID, color;
   Role *item;
-  QString name, imgPath;
-  qreal impact = 0.0; //影响力
+  QString name;
+  double impact = 0.0; // 影响力
 
 public:
   RoleData() = default;
-  RoleData(int x, const QString &s, Role *p = nullptr, int c = 1,
-           QString path = "")
-      : ID(x), color(c), item(p), name(s), imgPath(path) {}
+  RoleData(int x, const QString &s, Role *p = nullptr, int c = 1)
+      : ID(x), color(c), item(p), name(s) {}
 
   void print() { qDebug() << QString("Role %1: %2").arg(ID).arg(name); }
   void setItem(Role *p) { item = p; }
-  void setImage(const QString &path) { imgPath = path; }
+  //  void setImage(const QString &path) { imgPath = path; }
 };
 
 struct RelData {
   QString label;
   int color;
   Rel *item;
-  qreal cohesion; //亲密度
+  double cohesion; // 亲密度
 
 public:
   RelData() = default;

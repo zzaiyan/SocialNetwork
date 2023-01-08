@@ -1,4 +1,6 @@
 #include "canvaswidget.h"
+#include "littlefamily.h"
+#include "significancer.h"
 #include "ui_canvaswidget.h"
 #include <QDebug>
 #include <QFile>
@@ -12,10 +14,10 @@ CanvasWidget::CanvasWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::CanvasWidget) {
   ui->setupUi(this);
 
-  ui->addRole->setIconSize(QSize(25, 25));
-  ui->addRole->setIcon(QIcon(":/icon/role2.svg"));
-  ui->deleteItem->setIconSize(QSize(20, 20));
-  ui->deleteItem->setIcon(QIcon(":/icon/delete.svg"));
+  //  ui->addRole->setIconSize(QSize(25, 25));
+  //  ui->addRole->setIcon(QIcon(":/icon/role2.svg"));
+  //  ui->deleteItem->setIconSize(QSize(20, 20));
+  //  ui->deleteItem->setIcon(QIcon(":/icon/delete.svg"));
 
   scene = new QGraphicsScene;
   // scene->setSceneRect(-5000, -5000, 10000, 10000);
@@ -24,12 +26,12 @@ CanvasWidget::CanvasWidget(QWidget *parent)
   view->setScene(scene);
   view->setMinimumWidth(400);
   ui->horizontalLayout_6->addWidget(view);
-  ui->comboBox->setView(new QListView());
-  ui->tabWidget->setTabText(0, "查询人物");
-  ui->tabWidget->setTabText(1, "查询关系");
+  //  ui->comboBox->setView(new QListView());
+  //  ui->tabWidget->setTabText(0, "查询人物");
+  //  ui->tabWidget->setTabText(1, "查询关系");
   // ui->tabWidget->setFont(QFont("微软雅黑",12));
-  ui->imgLabel->setScaledContents(true);
-  ui->openFile->setEnabled(false);
+  //  ui->imgLabel->setScaledContents(true);
+  //  ui->openFile->setEnabled(false);
   connect(scene, SIGNAL(selectionChanged()), this, SLOT(repaint()));
 }
 
@@ -46,45 +48,44 @@ void CanvasWidget::repaint() {
       selectedRel = nullptr;
       selectedRole = qgraphicsitem_cast<Role *>(selectedItem);
       auto ver = hashName[selectedRole->name];
-      QString imgPath = selectedRole->imgPath, name = selectedRole->name;
-      QPixmap p(imgPath.isEmpty() ? ":/icon/role.svg" : imgPath);
-      ui->imgLabel->setPixmap(p);
+      QString name = selectedRole->name;
+      //      QPixmap p(imgPath.isEmpty() ? ":/icon/role.svg" : imgPath);
+      //      ui->imgLabel->setPixmap(p);
       ui->nameEdit->setText(name);
       ui->idLabel->setText("ID:" + QString::number(selectedRole->ID));
       ui->infoEdit->clear();
-      ui->infoEdit->appendPlainText(
-          QString("影响力：%1").arg(ver->_data.impact));
+      ui->infoEdit->setText(QString("影响力：%1").arg(ver->_data.impact));
       ui->nameEdit->setReadOnly(false);
       ui->infoEdit->setReadOnly(false);
-      ui->openFile->setEnabled(true);
+      //      ui->openFile->setEnabled(true);
     } else { // 当前选中的是rel
       selectedRole = nullptr;
       selectedRel = qgraphicsitem_cast<Rel *>(selectedItem->parentItem());
       QPixmap p(":/icon/relation.svg");
-      ui->imgLabel->setPixmap(p);
+      //      ui->imgLabel->setPixmap(p);
       ui->nameEdit->setText(selectedRel->text);
       ui->idLabel->setText("ID:00");
       ui->infoEdit->clear();
       QString buf;
       buf =
           selectedRel->startRole()->name + "->" + selectedRel->endRole()->name;
-      ui->infoEdit->appendPlainText(buf);
+      ui->infoEdit->setText(buf);
       ui->nameEdit->setReadOnly(false);
       ui->infoEdit->setReadOnly(true);
-      ui->openFile->setEnabled(false);
+      //      ui->openFile->setEnabled(false);
     }
   } else { // 选中的是别的地方
     selectedRole = nullptr;
     selectedRel = nullptr;
     QPixmap p;
-    ui->imgLabel->setPixmap(p);
+    //    ui->imgLabel->setPixmap(p);
     ui->nameEdit->setText("Null");
     ui->infoEdit->clear();
-    ui->infoEdit->appendPlainText("No description");
+    ui->infoEdit->setText("No description");
     ui->idLabel->setText("ID:00");
     ui->nameEdit->setReadOnly(true);
     ui->infoEdit->setReadOnly(true);
-    ui->openFile->setEnabled(false);
+    //    ui->openFile->setEnabled(false);
   }
 }
 // 更新数值
@@ -162,22 +163,22 @@ void CanvasWidget::on_nameEdit_editingFinished() {
   }
 }
 
-void CanvasWidget::on_openFile_clicked() {
-  QImage image;
-  QString OpenFile;
-  // 打开文件夹中的图片文件
-  OpenFile = QFileDialog::getOpenFileName(
-      this, "Please choose an image file", "",
-      "Image Files(*.jpg *.png *.bmp *.pgm *.pbm);;All(*.*)");
-  if (OpenFile != "" && selectedRole != nullptr) {
-    if (image.load(OpenFile)) {
-      ui->imgLabel->setPixmap(QPixmap::fromImage(image));
-      selectedRole->setImgPath(OpenFile);
-      auto ver = hashName[selectedRole->name];
-      ver->_data.imgPath = OpenFile;
-    }
-  }
-}
+// void CanvasWidget::on_openFile_clicked() {
+//   QImage image;
+//   QString OpenFile;
+//   // 打开文件夹中的图片文件
+//   OpenFile = QFileDialog::getOpenFileName(
+//       this, "Please choose an image file", "",
+//       "Image Files(*.jpg *.png *.bmp *.pgm *.pbm);;All(*.*)");
+//   if (OpenFile != "" && selectedRole != nullptr) {
+//     if (image.load(OpenFile)) {
+//       //      ui->imgLabel->setPixmap(QPixmap::fromImage(image));
+//       selectedRole->setImgPath(OpenFile);
+//       auto ver = hashName[selectedRole->name];
+//       ver->_data.imgPath = OpenFile;
+//     }
+//   }
+// }
 
 void CanvasWidget::on_exportImg_clicked() {
   QString filePath =
@@ -258,24 +259,24 @@ void CanvasWidget::readFile() {
     auto color = (*it++).toInt();
     auto pos_x = (*it++).toDouble();
     auto pos_y = (*it++).toDouble();
-    auto path = *it++;
-    if (path == "null")
-      path = "";
+    //    auto path = *it++;
+    //    if (path == "null")
+    //      path = "";
 
     int ID = ++lineCnt; // ID: 1~n
 
     // 建立Role
-    auto roleItem = new Role(ID, view, name, path);
+    auto roleItem = new Role(ID, view, name);
     roleItem->setColor(color);
 
     // 加入场景
     scene->addItem(roleItem);
     // 设置坐标
     roleItem->setPos(pos_x, pos_y);
-    qDebug() << pos_x << " " << pos_y;
+    //    qDebug() << pos_x << " " << pos_y;
 
     // 建立顶点，绑定Role
-    auto ver = net.addVer({ID, name, roleItem, color, path});
+    auto ver = net.addVer({ID, name, roleItem, color});
 
     qDebug() << QString("%1 -> %2").arg(name).arg(ID);
 
@@ -341,13 +342,13 @@ void CanvasWidget::writeFile() {
 
   for (int i = 0; i < verNum; i++) { // for Vers
     auto &data = vers[i]->_data;
-    QString imgPath = data.imgPath.isEmpty() ? "null" : data.imgPath;
-    buf = QString("%1,%2,%3,%4,%5")
+    //    QString imgPath = data.imgPath.isEmpty() ? "null" : data.imgPath;
+    buf = QString("%1,%2,%3,%4")
               .arg(data.name)
               .arg(data.color)
               .arg(data.item->scenePos().x())
-              .arg(data.item->scenePos().y())
-              .arg(imgPath);
+              .arg(data.item->scenePos().y());
+    //              .arg(imgPath);
 
     out << buf << '\n';
   }
@@ -423,6 +424,7 @@ void CanvasWidget::on_debugButton_clicked() {
   net.printTable();
   //  writeFile();
 }
+
 void CanvasWidget::setColor(int c) {
   if (selectedRole != nullptr) {
     selectedRole->setColor(c);
@@ -443,17 +445,17 @@ void CanvasWidget::on_comboBox_currentIndexChanged(int index) {
   return;
 }
 
-void CanvasWidget::on_queryButton1_clicked() {
-  QString queryText = ui->queryEdit->text();
+void CanvasWidget::queryRole(const QString &a) {
+  //  QString queryText = ui->queryEdit->text();
   ALNet<RoleData, RelData>::VerNode *ver = nullptr;
   switch (SearchModelChoice) {
   case 0: // 按姓名查询
-    if (hashName.contains(queryText))
-      ver = hashName[queryText];
+    if (hashName.contains(a))
+      ver = hashName[a];
     break;
   case 1: // 按ID查询
-    if (hashID.contains(queryText.toInt()))
-      ver = hashID[queryText.toInt()];
+    if (hashID.contains(a.toInt()))
+      ver = hashID[a.toInt()];
     break;
   default:
     break;
@@ -466,22 +468,22 @@ void CanvasWidget::on_queryButton1_clicked() {
   }
 }
 
-void CanvasWidget::on_queryButton2_clicked() {
-  QString text1 = ui->role1Edit->text(), text2 = ui->role2Edit->text();
+void CanvasWidget::queryRelation(const QString &a, const QString &b) {
+  //  QString text1 = ui->role1Edit->text(), b = ui->role2Edit->text();
   ALNet<RoleData, RelData>::VerNode *ver1 = nullptr, *ver2 = nullptr;
-  ALNet<RoleData, RelData>::ArcNode *arc;
+  //  ALNet<RoleData, RelData>::ArcNode *arc;
   switch (SearchModelChoice) {
   case 0: // 按姓名查询
-    if (hashName.contains(text1))
-      ver1 = hashName[text1];
-    if (hashName.contains(text2))
-      ver2 = hashName[text2];
+    if (hashName.contains(a))
+      ver1 = hashName[a];
+    if (hashName.contains(b))
+      ver2 = hashName[b];
     break;
   case 1: // 按ID查询
-    if (hashID.contains(text1.toInt()))
-      ver1 = hashID[text1.toInt()];
-    if (hashID.contains(text2.toInt()))
-      ver2 = hashID[text1.toInt()];
+    if (hashID.contains(a.toInt()))
+      ver1 = hashID[a.toInt()];
+    if (hashID.contains(b.toInt()))
+      ver2 = hashID[a.toInt()];
     break;
   default:
     break;
@@ -533,4 +535,47 @@ void CanvasWidget::on_resetCanvas_clicked() { clear(); }
 
 void CanvasWidget::on_pushButton_clicked() {
   setColor(ui->comboBox_2->currentIndex() + 1);
+}
+
+void CanvasWidget::on_readButton_clicked() {
+  clear();
+  readFile();
+}
+
+void CanvasWidget::on_queryBtn_clicked() {
+  auto query = new QueryWidget(this);
+
+  query->setAttribute(Qt::WA_DeleteOnClose, true);
+  query->setWindowModality(Qt::ApplicationModal);
+  query->show();
+}
+
+void CanvasWidget::checkQuery() {
+  if (queryParaCnt == 1) {
+    queryRole(key1);
+  }
+  if (queryParaCnt == 2) {
+    queryRelation(key1, key2);
+  }
+}
+
+void CanvasWidget::on_significance_clicked() {
+  auto &vers = net.getVers();
+
+  auto sig = new Significancer(this, &vers);
+
+  sig->setAttribute(Qt::WA_DeleteOnClose, true);
+  sig->setWindowModality(Qt::ApplicationModal);
+  sig->show();
+}
+
+void CanvasWidget::on_littleFamily_clicked() {
+
+  auto &vers = net.getVers();
+
+  auto family = new LittleFamily(this, &vers);
+
+  family->setAttribute(Qt::WA_DeleteOnClose, true);
+  family->setWindowModality(Qt::ApplicationModal);
+  family->show();
 }

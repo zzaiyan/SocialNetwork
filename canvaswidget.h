@@ -4,8 +4,10 @@
 #include "mygraphicsview.h"
 #include "net.h"
 #include "node.h"
+#include "querywidget.h"
 #include "rel.h"
 #include "role.h"
+#include <QApplication>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QGraphicsItem>
@@ -44,23 +46,31 @@ private slots:
 
   void on_nameEdit_editingFinished();
 
-  void on_openFile_clicked();
+  //  void on_openFile_clicked();
 
   void on_exportImg_clicked();
 
   void on_debugButton_clicked();
 
-  void on_queryButton1_clicked();
+  //  void on_queryButton1_clicked();
 
   void on_comboBox_currentIndexChanged(int index);
 
   void on_checkBox_stateChanged(int arg1);
 
-  void on_queryButton2_clicked();
+  //  void on_queryButton2_clicked();
 
   void on_resetCanvas_clicked();
 
   void on_pushButton_clicked();
+
+  void on_readButton_clicked();
+
+  void on_queryBtn_clicked();
+
+  void on_significance_clicked();
+
+  void on_littleFamily_clicked();
 
 public: // from Zzaiyan
   void setRelData(int ID1, int ID2, const RelData &e);
@@ -70,9 +80,17 @@ public: // from Zzaiyan
   void shuffle();
   void clear();
 
+  void queryRelation(const QString &a, const QString &b);
+  void queryRole(const QString &a);
+  void checkQuery();
+
   ALNet<RoleData, RelData> net; // 有向网
   QHash<QString, ALNet<RoleData, RelData>::VerNode *> hashName;
   QHash<int, ALNet<RoleData, RelData>::VerNode *> hashID;
+
+  QString key1, key2;
+  int queryParaCnt = 0;
+  int SearchModelChoice = 0;
 
   void readFile();
   void writeFile();
@@ -88,7 +106,6 @@ private:
   Role *selectedRole = nullptr;
   Rel *selectedRel = nullptr;
 
-  int SearchModelChoice = 0;
   //  int roleCnt = 0;
   //  int relCnt = 0;
   int roleID = 0; // 作为ID池

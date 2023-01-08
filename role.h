@@ -18,13 +18,13 @@ class Role : public QGraphicsItem {
 public:
   enum { Type = UserType + 77 };
   int type() const override { return Type; }
-  Role(int id, MyGraphicsView *view, QString tname = "", QString imgPath = "");
+  Role(int id, MyGraphicsView *view, QString tname = "");
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget) override;
   void setColor(int c);
   void setName(QString tname);
-  void setImgPath(QString path);
+  //  void setImgPath(QString path);
   void addRel(Rel *rel);
   void removeThis();
   void removeRel(Rel *rel);
@@ -39,7 +39,7 @@ public:
   int ID;
   MyGraphicsView *view;
   QString name;
-  QString imgPath;
+  //  QString imgPath;
   QPointF newPos;
 
 protected:

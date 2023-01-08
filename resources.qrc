@@ -1,14 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>icon/relation.svg</file>
         <file>icon/role.svg</file>
         <file>icon/role2.svg</file>
         <file>icon/role1.svg</file>
-        <file>img/jby.png</file>
-        <file>icon/delete.svg</file>
-        <file>icon/delete2.svg</file>
-        <file>icon/checkbox0.svg</file>
-        <file>icon/checkbox1.svg</file>
         <file>icon/004.ico</file>
     </qresource>
 </RCC>

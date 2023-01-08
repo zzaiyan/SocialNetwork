@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
-Role::Role(int id, MyGraphicsView *view, QString tname, QString imgPath)
-    : ID(id), view(view), imgPath(imgPath), color(BLUE), radius(20) {
+Role::Role(int id, MyGraphicsView *view, QString tname)
+    : ID(id), view(view), color(BLUE), radius(20) {
   // 可选择、可移动
   setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
   setFlag(ItemSendsGeometryChanges);   // 打开通知
@@ -49,28 +49,12 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   const qreal lod =
       option->levelOfDetailFromTransform(painter->worldTransform());
   if (lod > 0.3) {
-    if (!imgPath.isEmpty()) {
-      qreal delta = radius / 8;
-      brush.setColor(Qt::white);
-      painter->setBrush(brush);
-      painter->drawEllipse(QPointF(0, 0), radius - delta, radius - delta);
-      QPixmap pix(imgPath);
-      painter->setRenderHint(QPainter::Antialiasing);
-      painter->setRenderHint(QPainter::SmoothPixmapTransform);
-      QPainterPath path;
-      delta = radius / 4;
-      path.addEllipse(-(radius - delta), -(radius - delta),
-                      2 * (radius - delta), 2 * (radius - delta));
-      painter->setClipPath(path);
-      painter->drawPixmap(QRect(-(radius - delta), -(radius - delta),
-                                (radius - delta) * 2, (radius - delta) * 2),
-                          pix);
-    } else {
-      QString filename = ":/icon/role1.svg";
-      QSvgRenderer m_svgRender(filename);
-      m_svgRender.render(painter,
-                         QRectF(-radius, -radius, 2 * radius, 2 * radius));
-    }
+
+    QString filename = ":/icon/role1.svg";
+    QSvgRenderer m_svgRender(filename);
+    m_svgRender.render(painter,
+                       QRectF(-radius, -radius, 2 * radius, 2 * radius));
+
     nameTag->setVisible(true);
     nameTag->setPos(-nameTag->textWidth() / 2, radius);
   } else {
@@ -201,10 +185,10 @@ void Role::setName(QString tname) {
   nameTag->adjustSize();
   nameTag->setPos(-nameTag->textWidth() / 2, radius);
 }
-void Role::setImgPath(QString path) {
-  imgPath = path;
-  update();
-}
+// void Role::setImgPath(QString path) {
+//   imgPath = path;
+//   update();
+// }
 
 void Role::addRel(Rel *rel) {
   relList << rel;
@@ -212,7 +196,9 @@ void Role::addRel(Rel *rel) {
   radius = 12 * log(degree + 1) / log(3) + 20;
   update();
   view->itemMoved();
-  foreach (Rel *rel, relList) { rel->adjust(); }
+  foreach (Rel *rel, relList) {
+    rel->adjust();
+  }
 }
 
 QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
@@ -231,7 +217,9 @@ QVariant Role::itemChange(GraphicsItemChange change, const QVariant &value) {
 }
 
 void Role::removeThis() {
-  foreach (Rel *rel, relList) { rel->removeThis(); }
+  foreach (Rel *rel, relList) {
+    rel->removeThis();
+  }
   this->relList.clear();
   scene()->removeItem(this);
   view->itemMoved();

@@ -18,7 +18,7 @@ public:
   struct VerNode { // 顶点
     int _pos;
     VerData _data;
-    list<ArcNode> _Adj, _rAdj; // 出度表 + 入度表
+    list<ArcNode> _Adj, _rAdj; // 邻接表
 
     VerNode(int i, const VerData &e = {}) : _pos(i), _data(e) {}
   };
@@ -56,6 +56,9 @@ public:
     for (int i = 0; i < s; i++) // initialize
       vers.push_back(new VerNode{i});
   }
+
+  ~ALNet() { clear(); }
+
   void clear() {
     for (auto &&p : vers)
       delete p;
@@ -132,13 +135,21 @@ public:
   }
 
   void rmVer(VerNode *delVer) {
+    queue<std::pair<VerNode *, VerNode *>> que;
+
     for (auto &e : delVer->_Adj)
-      rmArc(e.from, e.to);
+      que.push({e.from, e.to});
 
     for (auto &e : delVer->_rAdj)
-      rmArc(e.to, e.from);
+      que.push({e.to, e.from});
 
-    int i = delVer->_pos + 1;
+    while (!que.empty()) {
+      auto e = que.front();
+      rmArc(e.first, e.second);
+      que.pop();
+    }
+
+    size_t i = delVer->_pos + 1;
     for (; i < vers.size(); i++) {
       vers[i]->_pos--;
       vers[i - 1] = vers[i];

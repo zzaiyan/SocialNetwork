@@ -1,7 +1,7 @@
 #include "mygraphicsview.h"
 #include <QtOpenGL>
 
-MyGraphicsView::MyGraphicsView(MyCanvas *p, QWidget *parent)
+MyGraphicsView::MyGraphicsView(CanvasWidget *p, QWidget *parent)
     : QGraphicsView(parent), canvas(p) {
   this->setBackgroundBrush(Qt::transparent);
   this->setRenderHints(QPainter::Antialiasing |

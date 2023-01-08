@@ -1,5 +1,5 @@
-#include "mycanvas.h"
-#include "ui_mycanvas.h"
+#include "canvaswidget.h"
+#include "ui_canvaswidget.h"
 #include <QDebug>
 #include <QFile>
 #include <cmath>
@@ -8,7 +8,8 @@
 // #define REL_FILE "../SocialNetworkAnalist/data/data.csv"
 #define DATA_FILE "../SocialNetworkAnalist/data1.csv"
 
-MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
+CanvasWidget::CanvasWidget(QWidget *parent)
+    : QWidget(parent), ui(new Ui::CanvasWidget) {
   ui->setupUi(this);
 
   ui->addRole->setIconSize(QSize(25, 25));
@@ -32,13 +33,13 @@ MyCanvas::MyCanvas(QWidget *parent) : QWidget(parent), ui(new Ui::MyCanvas) {
   connect(scene, SIGNAL(selectionChanged()), this, SLOT(repaint()));
 }
 
-MyCanvas::~MyCanvas() {
+CanvasWidget::~CanvasWidget() {
   delete ui;
   delete scene;
   delete view;
 }
 
-void MyCanvas::repaint() {
+void CanvasWidget::repaint() {
   if (!scene->selectedItems().isEmpty()) {
     selectedItem = scene->selectedItems().front();
     if (selectedItem->type() == Role::Type) { // 当前选中的是role
@@ -87,7 +88,7 @@ void MyCanvas::repaint() {
   }
 }
 // 更新数值
-void MyCanvas::updateValue() {
+void CanvasWidget::updateValue() {
   int roleCnt = net.getVerNum();
   int relCnt = net.getArcNum();
 
@@ -96,7 +97,7 @@ void MyCanvas::updateValue() {
   getImpact();
 }
 
-void MyCanvas::on_addRole_clicked() {
+void CanvasWidget::on_addRole_clicked() {
   // 新建roleItem，分配ID
   auto *newRole = new Role(++roleID, view);
 
@@ -116,7 +117,7 @@ void MyCanvas::on_addRole_clicked() {
   updateValue();
 }
 
-void MyCanvas::on_deleteItem_clicked() {
+void CanvasWidget::on_deleteItem_clicked() {
   if (selectedRole != nullptr) {
     //    selectedItem = nullptr;
     qDebug() << "remove:" << selectedRole->ID << selectedRole->name;
@@ -137,7 +138,7 @@ void MyCanvas::on_deleteItem_clicked() {
   updateValue();
 }
 
-void MyCanvas::on_nameEdit_editingFinished() {
+void CanvasWidget::on_nameEdit_editingFinished() {
   if (selectedRole != nullptr) {
     auto oldName = selectedRole->name;
     auto newName = ui->nameEdit->text();
@@ -161,7 +162,7 @@ void MyCanvas::on_nameEdit_editingFinished() {
   }
 }
 
-void MyCanvas::on_openFile_clicked() {
+void CanvasWidget::on_openFile_clicked() {
   QImage image;
   QString OpenFile;
   // 打开文件夹中的图片文件
@@ -178,7 +179,7 @@ void MyCanvas::on_openFile_clicked() {
   }
 }
 
-void MyCanvas::on_exportImg_clicked() {
+void CanvasWidget::on_exportImg_clicked() {
   QString filePath =
       QFileDialog::getSaveFileName(this, "save", QString(), " *.png");
   if (!filePath.isEmpty()) {
@@ -196,7 +197,7 @@ void MyCanvas::on_exportImg_clicked() {
   }
 }
 
-void MyCanvas::shuffle() {
+void CanvasWidget::shuffle() {
   auto viewSize = view->size();
   QPointF p(view->mapToScene(viewSize.width() / 2, viewSize.height() / 2));
   const QList<QGraphicsItem *> items = scene->items();
@@ -207,7 +208,7 @@ void MyCanvas::shuffle() {
   }
 }
 
-void MyCanvas::clear() {
+void CanvasWidget::clear() {
   // 清空场景
   QList<QGraphicsItem *> all = scene->items();
   foreach (QGraphicsItem *item, all) {
@@ -221,7 +222,7 @@ void MyCanvas::clear() {
   updateValue();
 }
 
-void MyCanvas::readFile() {
+void CanvasWidget::readFile() {
   QString fileName = QFileDialog::getOpenFileName(
       this, tr("Excel file"), qApp->applicationDirPath(), tr("Files (*.csv)"));
   QFile inFile(fileName);
@@ -232,6 +233,7 @@ void MyCanvas::readFile() {
   }
   QStringList list; // 读取每一行的内容
   QTextStream in(&inFile);
+  //  in.setCodec("gbk");
   codec = FileCharacterEncoding(fileName);
   in.setCodec(codec.toLocal8Bit()); // 这行的目的是支持读取中文信息
   qDebug() << codec;
@@ -315,7 +317,7 @@ void MyCanvas::readFile() {
   qDebug() << "文件读取完成!";
 }
 
-void MyCanvas::writeFile() {
+void CanvasWidget::writeFile() {
   QString fileName = QFileDialog::getSaveFileName(
       this, tr("save file"), qApp->applicationDirPath(), tr("Files (*.csv)"));
   QFile file(fileName);
@@ -365,7 +367,7 @@ void MyCanvas::writeFile() {
   file.close();
 }
 
-void MyCanvas::getImpact() {
+void CanvasWidget::getImpact() {
   //  auto &vers = net.getVers();
   //  // 获取邻接表指针
   //  auto pAdj = [&](int id) { return &vers[id]->_Adj; };
@@ -401,27 +403,27 @@ void MyCanvas::getImpact() {
   }
 }
 
-void MyCanvas::setRelData(int ID1, int ID2, const RelData &e) {
+void CanvasWidget::setRelData(int ID1, int ID2, const RelData &e) {
   auto ver1 = hashID[ID1];
   auto ver2 = hashID[ID2];
   net.getArc(ver1, ver2)->_data = e;
   net.getRArc(ver1, ver2)->_data = e;
 }
 
-RelData *MyCanvas::addNetArc(const QString &name1, const QString &name2,
-                             const QString &label, Rel *item) {
+RelData *CanvasWidget::addNetArc(const QString &name1, const QString &name2,
+                                 const QString &label, Rel *item) {
   auto ver1 = hashName[name1];
   auto ver2 = hashName[name2];
   auto relData = net.addArc(ver1, ver2, {label, 1, item});
   return relData;
 }
 
-void MyCanvas::on_debugButton_clicked() {
+void CanvasWidget::on_debugButton_clicked() {
   net.printVers();
   net.printTable();
   //  writeFile();
 }
-void MyCanvas::setColor(int c) {
+void CanvasWidget::setColor(int c) {
   if (selectedRole != nullptr) {
     selectedRole->setColor(c);
     auto ver = hashID[selectedRole->ID];
@@ -436,12 +438,12 @@ void MyCanvas::setColor(int c) {
   }
 }
 
-void MyCanvas::on_comboBox_currentIndexChanged(int index) {
+void CanvasWidget::on_comboBox_currentIndexChanged(int index) {
   SearchModelChoice = index;
   return;
 }
 
-void MyCanvas::on_queryButton1_clicked() {
+void CanvasWidget::on_queryButton1_clicked() {
   QString queryText = ui->queryEdit->text();
   ALNet<RoleData, RelData>::VerNode *ver = nullptr;
   switch (SearchModelChoice) {
@@ -464,7 +466,7 @@ void MyCanvas::on_queryButton1_clicked() {
   }
 }
 
-void MyCanvas::on_queryButton2_clicked() {
+void CanvasWidget::on_queryButton2_clicked() {
   QString text1 = ui->role1Edit->text(), text2 = ui->role2Edit->text();
   ALNet<RoleData, RelData>::VerNode *ver1 = nullptr, *ver2 = nullptr;
   ALNet<RoleData, RelData>::ArcNode *arc;
@@ -497,17 +499,17 @@ void MyCanvas::on_queryButton2_clicked() {
   }
 }
 
-void MyCanvas::on_checkBox_stateChanged(int arg1) {
+void CanvasWidget::on_checkBox_stateChanged(int arg1) {
   if (arg1 == 0) {
     view->mode = 0;
   } else if (arg1 == 2) {
     view->mode = 1;
   }
 }
-void MyCanvas::updateZoomText() {
+void CanvasWidget::updateZoomText() {
   ui->zoomLabel->setText(QString("缩放比例：%1%").arg(int(view->zoom * 100)));
 }
-QString MyCanvas::FileCharacterEncoding(const QString &fileName) {
+QString CanvasWidget::FileCharacterEncoding(const QString &fileName) {
   // 假定默认编码utf8
   QString code = "UTF-8";
 
@@ -527,8 +529,8 @@ QString MyCanvas::FileCharacterEncoding(const QString &fileName) {
   return code;
 }
 
-void MyCanvas::on_resetCanvas_clicked() { clear(); }
+void CanvasWidget::on_resetCanvas_clicked() { clear(); }
 
-void MyCanvas::on_pushButton_clicked() {
+void CanvasWidget::on_pushButton_clicked() {
   setColor(ui->comboBox_2->currentIndex() + 1);
 }

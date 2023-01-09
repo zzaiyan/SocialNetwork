@@ -58,7 +58,26 @@
           </font>
          </property>
          <property name="text">
-          <string>小团体分析</string>
+          <string>小团体分析A</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="littleFamily_2">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>小团体分析B</string>
          </property>
         </widget>
        </item>
@@ -479,19 +498,14 @@
        </item>
        <item>
         <widget class="QLabel" name="countLabel">
-         <property name="font">
-          <font>
-           <family>Microsoft YaHei UI</family>
-           <pointsize>10</pointsize>
-           <bold>true</bold>
-          </font>
+         <property name="minimumSize">
+          <size>
+           <width>180</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="styleSheet">
-          <string notr="true">border: 1px solid #BEBFC2;
-border-top: 0px;
-border-left: 0px;
-background-color: white;
-padding: 5px;</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>Nodes：0，Edges：0</string>

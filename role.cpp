@@ -48,15 +48,16 @@ void Role::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   // 根据缩放级别调整绘制细节，只有缩放级别较大时才绘制图标和图片
   const qreal lod =
       option->levelOfDetailFromTransform(painter->worldTransform());
-  if (lod > 0.3) {
+  if (lod > 0.1) {
 
-    QString filename = ":/icon/role1.svg";
-    QSvgRenderer m_svgRender(filename);
-    m_svgRender.render(painter,
-                       QRectF(-radius, -radius, 2 * radius, 2 * radius));
+    //    QString filename = ":/icon/role.svg";
+    //    QSvgRenderer m_svgRender(filename);
+    //    m_svgRender.render(painter,
+    //                       QRectF(-radius, -radius, 2 * radius, 2 * radius));
 
     nameTag->setVisible(true);
-    nameTag->setPos(-nameTag->textWidth() / 2, radius);
+    //    nameTag->setPos(-nameTag->textWidth() / 2, radius);
+    nameTag->setPos(-nameTag->textWidth() / 2, -15);
   } else {
     nameTag->setVisible(false);
   }
@@ -81,7 +82,7 @@ void Role::setColor(int c) {
     color = BLUE;
     break;
   case 2:
-    color = RED;
+    color = QColor(180, 0, 0, 150);
     break;
   case 3:
     color = PURPLE;
@@ -101,6 +102,7 @@ void Role::setColor(int c) {
   default:
     break;
   }
+  color.setAlpha(150);
   update();
 }
 
@@ -183,7 +185,8 @@ void Role::setName(QString tname) {
   name = tname;
   nameTag->setPlainText(tname);
   nameTag->adjustSize();
-  nameTag->setPos(-nameTag->textWidth() / 2, radius);
+  //  nameTag->setPos(-nameTag->textWidth() / 2, radius);
+  nameTag->setPos(-nameTag->textWidth() / 2, 0);
 }
 // void Role::setImgPath(QString path) {
 //   imgPath = path;

@@ -6,10 +6,6 @@
 #include <QFile>
 #include <cmath>
 
-// #define ROLE_FILE "../SocialNetworkAnalist/data/id.csv"
-// #define REL_FILE "../SocialNetworkAnalist/data/data.csv"
-#define DATA_FILE "../SocialNetworkAnalist/data1.csv"
-
 CanvasWidget::CanvasWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::CanvasWidget) {
   ui->setupUi(this);
@@ -33,6 +29,8 @@ CanvasWidget::CanvasWidget(QWidget *parent)
   //  ui->imgLabel->setScaledContents(true);
   //  ui->openFile->setEnabled(false);
   connect(scene, SIGNAL(selectionChanged()), this, SLOT(repaint()));
+
+  system("python C:\\Users\\1\\Desktop\\第二题\\PycharmProject\\network.py");
 }
 
 CanvasWidget::~CanvasWidget() {
@@ -369,27 +367,6 @@ void CanvasWidget::writeFile() {
 }
 
 void CanvasWidget::getImpact() {
-  //  auto &vers = net.getVers();
-  //  // 获取邻接表指针
-  //  auto pAdj = [&](int id) { return &vers[id]->_Adj; };
-  //  auto prAdj = [&](int id) { return &vers[id]->_rAdj; };
-  // 由VerNode指针计算度数和
-  //  using pVer = decltype(net.getVers())::value_type;
-  //  auto Degree = [&](decltype(net.getVers())::value_type(v)) {
-  //    return net.totalDegree(v);
-  //  };
-  // 影响力 = 邻居的度数 x 亲密度 +自己的度数 x2
-  //  for (int i = 0; i < vers.size(); i++) {
-  //    vers[i]->_data.impact = 0;
-
-  //    for (auto &e : *pAdj(i))
-  //      vers[i]->_data.impact += e._data.cohesion * net.totalDegree(e.to);
-
-  //    for (auto &e : *prAdj(i))
-  //      vers[i]->_data.impact += e._data.cohesion * net.totalDegree(e.to);
-
-  //    vers[i]->_data.impact += net.totalDegree(vers[i]) * 2;
-  //  }
   for (auto &ver : net.getVers()) {
     ver->_data.impact = 0;
     qDebug() << ver->_Adj.size() << ver->_rAdj.size();
@@ -400,7 +377,7 @@ void CanvasWidget::getImpact() {
     for (auto &e : ver->_rAdj)
       ver->_data.impact += e._data.cohesion * net.totalDegree(e.to);
 
-    ver->_data.impact += net.totalDegree(ver) * 2;
+    ver->_data.impact += net.totalDegree(ver);
   }
 }
 
@@ -422,7 +399,7 @@ RelData *CanvasWidget::addNetArc(const QString &name1, const QString &name2,
 void CanvasWidget::on_debugButton_clicked() {
   net.printVers();
   net.printTable();
-  //  writeFile();
+  writeFile();
 }
 
 void CanvasWidget::setColor(int c) {
@@ -560,6 +537,9 @@ void CanvasWidget::checkQuery() {
 }
 
 void CanvasWidget::on_significance_clicked() {
+  if (net.getVerNum() == 0)
+    return;
+
   auto &vers = net.getVers();
 
   auto sig = new Significancer(this, &vers);
@@ -570,6 +550,10 @@ void CanvasWidget::on_significance_clicked() {
 }
 
 void CanvasWidget::on_littleFamily_clicked() {
+  if (net.getVerNum() == 0)
+    return;
+
+  //  QDesktopServices::openUrl(QUrl::fromLocalFile("../SocialNetwork/python.bat"));
 
   auto &vers = net.getVers();
 
@@ -578,4 +562,33 @@ void CanvasWidget::on_littleFamily_clicked() {
   family->setAttribute(Qt::WA_DeleteOnClose, true);
   family->setWindowModality(Qt::ApplicationModal);
   family->show();
+}
+
+void CanvasWidget::on_littleFamily_2_clicked() {
+  if (net.getVerNum() == 0)
+    return;
+
+  QString fileName = "../SocialNetwork/in.csv";
+  QFile file(fileName);
+  QTextStream out(&file);
+  if (!file.open(QIODevice::WriteOnly)) {
+    qDebug() << "Write file error!";
+    exit(1);
+  }
+  auto &vers = net.getVers();
+  int verNum = net.getVerNum();
+
+  for (int i = 0; i < verNum; i++) {
+    auto li = vers[i]->_Adj;
+    for (auto &&arc : li) {
+      auto buf = QString("%1,%2,%3")
+                     .arg(arc.from->_data.name)
+                     .arg(arc.to->_data.name)
+                     .arg(1);
+      out << buf << '\n';
+    }
+  }
+  file.close();
+
+  QDesktopServices::openUrl(QUrl::fromLocalFile("../SocialNetwork/python.bat"));
 }

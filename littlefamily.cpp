@@ -16,15 +16,15 @@ LittleFamily::LittleFamily(CanvasWidget *p,
   table_h_headers << "团体"
                   << "颜色"
                   << "人数规模"
-                  << "团里势力"
+                  << "团体势力"
                   << "代表人物";
 
   model->setHorizontalHeaderLabels(table_h_headers);
 
   std::vector<std::pair<QString, QString>> trans{
-      {"贾府", "红色"},   {"贾府1", "红色1"}, {"贾府2", "红色2"},
-      {"贾府3", "红色3"}, {"贾府4", "红色4"}, {"贾府5", "红色5"},
-      {"贾府6", "红色6"},
+      {"王家", "蓝色"}, {"宁国府", "红色"}, {"荣国府", "紫色"},
+      {"史家", "黄色"}, {"薛家", "洋红"},   {"林家", "绿色"},
+      {"其他", "灰色"},
   };
 
   struct Unit {

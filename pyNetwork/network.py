@@ -39,15 +39,9 @@ econcu = [(u, v) for (u, v, d) in G.edges(data=True) if d['weight'] == 4]  # 妾
 
 
 def team():
-    # 读取txt文件
-    # with open("C:/Users/1/Desktop/第二题/sign.txt", encoding='utf-8') as file:
-    #     content = file.read()
-    #     print(content.rstrip())  ##rstrip()删除字符串末尾的空行
-
-    # content = "BN算法"
+    # 划分社区（小团体）
     k = 0
 
-    # 划分社区（小团体）
     if k != 0:
         # BN算法
         comp = community.girvan_newman(G)
@@ -57,7 +51,7 @@ def team():
             b = list(sorted(c) for c in communities)
         return b
     else:
-        # louvain算法
+        # Louvain算法
         result = community.louvain_communities(G)
         return result
 

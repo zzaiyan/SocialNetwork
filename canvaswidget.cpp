@@ -10,27 +10,14 @@ CanvasWidget::CanvasWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::CanvasWidget) {
   ui->setupUi(this);
 
-  //  ui->addRole->setIconSize(QSize(25, 25));
-  //  ui->addRole->setIcon(QIcon(":/icon/role2.svg"));
-  //  ui->deleteItem->setIconSize(QSize(20, 20));
-  //  ui->deleteItem->setIcon(QIcon(":/icon/delete.svg"));
-
   scene = new QGraphicsScene;
-  // scene->setSceneRect(-5000, -5000, 10000, 10000);
   view = new MyGraphicsView(this); // 绑定this与view
 
   view->setScene(scene);
   view->setMinimumWidth(400);
   ui->horizontalLayout_6->addWidget(view);
-  //  ui->comboBox->setView(new QListView());
-  //  ui->tabWidget->setTabText(0, "查询人物");
-  //  ui->tabWidget->setTabText(1, "查询关系");
-  // ui->tabWidget->setFont(QFont("微软雅黑",12));
-  //  ui->imgLabel->setScaledContents(true);
-  //  ui->openFile->setEnabled(false);
-  connect(scene, SIGNAL(selectionChanged()), this, SLOT(repaint()));
 
-  system("python C:\\Users\\1\\Desktop\\第二题\\PycharmProject\\network.py");
+  connect(scene, SIGNAL(selectionChanged()), this, SLOT(repaint()));
 }
 
 CanvasWidget::~CanvasWidget() {

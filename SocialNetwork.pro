@@ -77,27 +77,5 @@ DISTFILES += \
     img/xbc.png \
     img/xfr.png \
     img/yej.png \
-    pyNetwork/build/network/Analysis-00.toc \
-    pyNetwork/build/network/EXE-00.toc \
-    pyNetwork/build/network/PKG-00.toc \
-    pyNetwork/build/network/PYZ-00.pyz \
-    pyNetwork/build/network/PYZ-00.toc \
-    pyNetwork/build/network/Tree-00.toc \
-    pyNetwork/build/network/Tree-01.toc \
-    pyNetwork/build/network/Tree-02.toc \
-    pyNetwork/build/network/base_library.zip \
-    pyNetwork/build/network/localpycs/pyimod01_archive.pyc \
-    pyNetwork/build/network/localpycs/pyimod02_importers.pyc \
-    pyNetwork/build/network/localpycs/pyimod03_ctypes.pyc \
-    pyNetwork/build/network/localpycs/pyimod04_pywin32.pyc \
-    pyNetwork/build/network/localpycs/struct.pyc \
-    pyNetwork/build/network/network.exe.manifest \
-    pyNetwork/build/network/network.pkg \
-    pyNetwork/build/network/warn-network.txt \
-    pyNetwork/build/network/xref-network.html \
-    pyNetwork/dist/network.exe \
-    pyNetwork/ex1.csv \
-    pyNetwork/main.py \
     pyNetwork/network.py \
-    pyNetwork/network.spec \
     python.bat
